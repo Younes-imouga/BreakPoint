@@ -35,8 +35,17 @@ export class UserService {
     return user;
   }
 
-  async getAllUsers() {
-    return this.userModel.find().select('-password').exec();
+  async getAllUsers(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    const users = await this.userModel.find().select('-password').skip(skip).limit(limit).exec();
+    const total = await this.userModel.countDocuments().exec();
+    return {
+      data: users,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async updateUser(id: string, updateUserDto: any) {

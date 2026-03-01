@@ -7,15 +7,23 @@ import {
   Delete,
   Body,
   Patch,
+  Query,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { RoleGuard } from '../guards/roles.guard';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { AttemptsService } from '../attempts/attempts.service';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    @Inject(forwardRef(() => AttemptsService))
+    private readonly attemptsService: AttemptsService,
+  ) {}
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -25,8 +33,10 @@ export class UserController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard(['ADMIN']))
-  async getAllUsers() {
-    return this.userService.getAllUsers();
+  async getAllUsers(@Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 20;
+    return this.userService.getAllUsers(pageNum, limitNum);
   }
 
   @Patch(':id')
@@ -56,5 +66,11 @@ export class UserController {
   @Get('leaderboard/top')
   async getLeaderboard() {
     return this.userService.getLeaderboard(10);
+  }
+
+  @Get(':userId/attempts')
+  @UseGuards(JwtAuthGuard)
+  async getUserAttempts(@Param('userId') userId: string) {
+    return this.attemptsService.getAttemptsByUser(userId);
   }
 }
