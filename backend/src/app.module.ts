@@ -8,23 +8,26 @@ import { AppController } from './app.controller';
 
 import { AppService } from './app.service';
 import { LoggerModule } from './logger/logger.module';
-import { LoggerMiddleware } from './logger/logger.middleware';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { SimulationsModule } from './simulations/simulations.module';
+import { AttemptsModule } from './attempts/attempts.module';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [envConfig]
+      load: [envConfig],
     }),
     DatabaseModule,
-    LoggerModule
+    LoggerModule,
+    UsersModule,
+    AuthModule,
+    SimulationsModule,
+    AttemptsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, LoggerMiddleware],
+  providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}
