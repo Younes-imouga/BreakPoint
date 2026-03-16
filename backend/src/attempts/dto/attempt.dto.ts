@@ -1,14 +1,9 @@
 import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsNumber } from 'class-validator';
-import { Types } from 'mongoose';
 
 export class CreateAttemptDto {
   @IsString()
   @IsNotEmpty()
   simulation_id: string;
-
-  @IsString()
-  @IsOptional()
-  token?: string;
 }
 
 export class AddAttemptEntryDto {
