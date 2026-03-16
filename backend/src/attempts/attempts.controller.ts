@@ -22,7 +22,8 @@ export class AttemptsController {
   @UseGuards(AttemptsOwnerGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.attemptsService.getAttemptById(id);
+    const attempt = await this.attemptsService.getAttemptById(id);
+    return this.attemptsService.sanitizeAttempt(attempt);
   }
 
   @UseGuards(AttemptsOwnerGuard)

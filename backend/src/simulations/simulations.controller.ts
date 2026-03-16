@@ -16,10 +16,14 @@ import { SimulationDto, UpdateSimulationDto } from './dto/simulation.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { RoleGuard } from '../guards/roles.guard';
+import { AttemptsService } from '../attempts/attempts.service';
 
 @Controller('simulations')
 export class SimulationsController {
-	constructor(private readonly simulationsService: SimulationsService) {}
+	constructor(
+		private readonly simulationsService: SimulationsService,
+		private readonly attemptsService: AttemptsService,
+	) {}
 
 	@Get()
 	async findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
@@ -50,7 +54,10 @@ export class SimulationsController {
 		if (!userId) {
 			throw new BadRequestException('Missing user id');
 		}
-		return this.simulationsService.startSimulation(id, userId);
+
+		// Validate simulation existence before creating attempt.
+		await this.simulationsService.getSimulationById(id);
+		return this.attemptsService.startSimulationAttempt(userId, id);
 	}
 
 	@Get(':simulationId/attempts')

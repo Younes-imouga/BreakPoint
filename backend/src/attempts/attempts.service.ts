@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Attempt, AttemptDocument } from './schemas/attempt.schema';
@@ -9,15 +9,64 @@ import { UserService } from '../users/users.service';
 
 @Injectable()
 export class AttemptsService {
+  private static readonly TOKEN_LENGTH = 12;
+  private static readonly TOKEN_ALPHABET =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
   constructor(
     @InjectModel(Attempt.name) private attemptModel: Model<AttemptDocument>,
     @InjectModel(Simulation.name) private simulationModel: Model<Simulation>,
     private userService: UserService,
   ) {}
 
-  private generateToken(): string {
-    // 8 bytes -> 16 hex chars
-    return randomBytes(8).toString('hex');
+  private generateToken(length: number = AttemptsService.TOKEN_LENGTH): string {
+    const bytes = randomBytes(length);
+    let token = '';
+
+    for (let i = 0; i < length; i++) {
+      token += AttemptsService.TOKEN_ALPHABET[bytes[i] % AttemptsService.TOKEN_ALPHABET.length];
+    }
+
+    return token;
+  }
+
+  private async generateUniqueToken(): Promise<string> {
+    // Retries are cheap and keep token generation deterministic at 12 chars.
+    for (let i = 0; i < 10; i++) {
+      const token = this.generateToken();
+      const exists = await this.attemptModel.findOne({ token }).select('_id').lean().exec();
+      if (!exists) {
+        return token;
+      }
+    }
+
+    throw new ConflictException('Could not generate a unique token, please retry');
+  }
+
+  public sanitizeAttempt<T extends { toObject?: () => any }>(attempt: T): any {
+    const raw = typeof attempt?.toObject === 'function' ? attempt.toObject() : attempt;
+    const { token: _token, ...safeAttempt } = raw;
+    return safeAttempt;
+  }
+
+  public sanitizeAttempts(attempts: Array<{ toObject?: () => any }>): any[] {
+    return attempts.map((attempt) => this.sanitizeAttempt(attempt));
+  }
+
+  private async createAndSaveAttempt(userId: string, simulationId: string) {
+    const token = await this.generateUniqueToken();
+    const attempt = new this.attemptModel({
+      user_id: new Types.ObjectId(userId),
+      simulation_id: new Types.ObjectId(simulationId),
+      token,
+      attempts: [],
+      hints_used: 0,
+      success: null,
+      final_score: null,
+    });
+
+    const savedAttempt = await attempt.save();
+    return this.sanitizeAttempt(savedAttempt);
   }
 
   async createAttempt(userId: string, dto: CreateAttemptDto) {
@@ -27,18 +76,23 @@ export class AttemptsService {
       throw new ConflictException('You have an active attempt. Complete it before creating a new one');
     }
 
-    const token = dto.token ?? this.generateToken();
-    const attempt = new this.attemptModel({
-      user_id: new Types.ObjectId(userId),
-      simulation_id: new Types.ObjectId(dto.simulation_id),
-      token,
-      attempts: [],
-      hints_used: 0,
-      success: null,
-      final_score: null,
-    });
+    return this.createAndSaveAttempt(userId, dto.simulation_id);
+  }
 
-    return attempt.save();
+  async startSimulationAttempt(userId: string, simulationId: string) {
+    const existingAttempt = await this.attemptModel
+      .findOne({
+        user_id: new Types.ObjectId(userId),
+        simulation_id: new Types.ObjectId(simulationId),
+        success: null,
+      })
+      .exec();
+
+    if (existingAttempt) {
+      throw new BadRequestException('You already have an active attempt for this simulation');
+    }
+
+    return this.createAndSaveAttempt(userId, simulationId);
   }
 
   async getAttemptById(id: string) {
@@ -48,11 +102,13 @@ export class AttemptsService {
   }
 
   async getAttemptsByUser(userId: string) {
-    return this.attemptModel.find({ user_id: new Types.ObjectId(userId) }).exec();
+    const attempts = await this.attemptModel.find({ user_id: new Types.ObjectId(userId) }).exec();
+    return this.sanitizeAttempts(attempts);
   }
 
   async getAttemptsBySimulation(simulationId: string) {
-    return this.attemptModel.find({ simulation_id: new Types.ObjectId(simulationId) }).exec();
+    const attempts = await this.attemptModel.find({ simulation_id: new Types.ObjectId(simulationId) }).exec();
+    return this.sanitizeAttempts(attempts);
   }
 
   async addEntry(attemptId: string, dto: AddAttemptEntryDto) {
@@ -65,7 +121,7 @@ export class AttemptsService {
 
     attempt.attempts.push(dto.entry);
     await attempt.save();
-    return attempt;
+    return this.sanitizeAttempt(attempt);
   }
 
   async completeAttempt(attemptId: string, dto: CompleteAttemptDto) {
@@ -76,7 +132,7 @@ export class AttemptsService {
     if (typeof dto.final_score === 'number') attempt.final_score = dto.final_score;
 
     await attempt.save();
-    return attempt;
+    return this.sanitizeAttempt(attempt);
   }
 
   async deleteAttempt(id: string) {
@@ -119,7 +175,11 @@ export class AttemptsService {
 
     await attempt.save();
 
-    return { success: isMatch, attempts: attempt.attempts.length, attempt };
+    return {
+      success: isMatch,
+      attempts: attempt.attempts.length,
+      attempt: this.sanitizeAttempt(attempt),
+    };
   }
 
   async verifyToken(attemptId: string, token: string) {
@@ -184,6 +244,6 @@ export class AttemptsService {
     attempt.success = false;
     await attempt.save();
     
-    return { message: 'Attempt marked as given up', attempt };
+    return { message: 'Attempt marked as given up', attempt: this.sanitizeAttempt(attempt) };
   }
 }
