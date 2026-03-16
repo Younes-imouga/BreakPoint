@@ -5,9 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/createUser.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -28,11 +30,56 @@ export class UserService {
   }
 
   async getUserById(id: string) {
-    const user = await this.userModel.findById(id).exec();
+    const user = await this.userModel.findById(id).select('-password').exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+
+  async getMyProfile(userId: string) {
+    const user = await this.userModel.findById(userId).select('-password').exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async updateMyProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (dto.email && dto.email !== user.email) {
+      const existingUser = await this.userModel.findOne({
+        email: dto.email,
+        _id: { $ne: user._id },
+      }).exec();
+
+      if (existingUser) {
+        throw new ConflictException('Email already in use');
+      }
+
+      user.email = dto.email;
+    }
+
+    if (typeof dto.name === 'string') {
+      user.name = dto.name;
+    }
+
+    if (dto.password) {
+      user.password = await bcrypt.hash(dto.password, 10);
+    }
+
+    await user.save();
+
+    const { password: _password, ...result } = user.toObject();
+    return result;
+  }
+
+  async deleteMyAccount(userId: string) {
+    return this.deleteUser(userId);
   }
 
   async getAllUsers(page: number = 1, limit: number = 20) {
