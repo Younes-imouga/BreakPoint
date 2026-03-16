@@ -4,13 +4,41 @@ import { Attempt } from '../attempts/schemas/attempt.schema';
 import { Model, Types } from 'mongoose';
 import { SimulationDto } from './dto/simulation.dto';
 import { InjectModel } from '@nestjs/mongoose';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class SimulationsService {
+    private static readonly TOKEN_LENGTH = 12;
+    private static readonly TOKEN_ALPHABET =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
     constructor(
         @InjectModel('Simulation') private readonly simulationModel: Model<Simulation>,
         @InjectModel('Attempt') private readonly attemptModel: Model<Attempt>,
     ) { }
+
+    private generateToken(length: number = SimulationsService.TOKEN_LENGTH): string {
+        const bytes = randomBytes(length);
+        let token = '';
+
+        for (let i = 0; i < length; i++) {
+            token += SimulationsService.TOKEN_ALPHABET[bytes[i] % SimulationsService.TOKEN_ALPHABET.length];
+        }
+
+        return token;
+    }
+
+    private async generateUniqueToken(): Promise<string> {
+        for (let i = 0; i < 10; i++) {
+            const token = this.generateToken();
+            const exists = await this.attemptModel.findOne({ token }).select('_id').lean().exec();
+            if (!exists) {
+                return token;
+            }
+        }
+
+        throw new ConflictException('Could not generate a unique token, please retry');
+    }
 
     async getSimulations(page: number = 1, limit: number = 20) {
         const skip = (page - 1) * limit;
@@ -54,7 +82,7 @@ export class SimulationsService {
     }
 
     async startSimulation(simulationId: string, userId: string) {
-        const simulation = await this.getSimulationById(simulationId);
+        await this.getSimulationById(simulationId);
         
         // Check for existing active attempt
         const existingAttempt = await this.attemptModel.findOne({
@@ -68,15 +96,20 @@ export class SimulationsService {
         }
 
         // Create new attempt
+        const token = await this.generateUniqueToken();
         const newAttempt = new this.attemptModel({
             user_id: new Types.ObjectId(userId),
             simulation_id: new Types.ObjectId(simulationId),
+            token,
             success: null,
             attempts: [],
             hints_used: 0,
         });
 
-        return newAttempt.save();
+        const savedAttempt = await newAttempt.save();
+        const attempt = savedAttempt.toObject();
+        const { token: _token, ...safeAttempt } = attempt;
+        return safeAttempt;
     }
 
     async getSimulationAttempts(simulationId: string) {

@@ -23,8 +23,8 @@ export class SimulationsController {
 
 	@Get()
 	async findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
-		const pageNum = parseInt(page) || 1;
-		const limitNum = parseInt(limit) || 20;
+		const pageNum = parseInt(page ?? '1', 10) || 1;
+		const limitNum = parseInt(limit ?? '20', 10) || 20;
 		return this.simulationsService.getSimulations(pageNum, limitNum);
 	}
 
