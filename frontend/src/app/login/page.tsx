@@ -1,6 +1,6 @@
-import RegisterComponent from './RegisterComponent';
+import LoginComponent from './LoginComponent';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   return (
     <div className="bg-slate-950 text-slate-300 min-h-screen">
       <nav className="flex justify-between items-center px-10 py-6 border-b border-slate-900 relative z-10">
@@ -17,7 +17,7 @@ export default function RegisterPage() {
       </div>
       <div className="flex items-center justify-center relative my-20">
         <div className="absolute bottom-10 right-10 text-slate-500 text-xs flicker pointer-events-none">
-          &gt; new user registration protocol...
+          &gt; awaiting credentials...
         </div>
         <div className="relative z-10 w-full max-w-md">
           <div className="text-center mb-12">
@@ -25,25 +25,28 @@ export default function RegisterPage() {
               BREAK_POINT
             </div>
             <div className="text-slate-500 text-sm tracking-widest uppercase">
-              &gt; Create New Operator Account
+              &gt; Security Testing Lab Platform
             </div>
           </div>
-          <RegisterComponent />
+          <LoginComponent />
           <div className="flex items-center gap-4 my-8">
             <div className="flex-1 h-px bg-slate-700"></div>
-            <span className="text-xs text-slate-500">[EXISTING_USER?]</span>
+            <span className="text-xs text-slate-500">[NEW_USER?]</span>
             <div className="flex-1 h-px bg-slate-700"></div>
           </div>
-          <a
-            href="/login"
-            className="block w-full text-center bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-300 font-bold py-3 rounded uppercase tracking-widest text-sm transition-all duration-300"
+          <button
+            type="button"
+            className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-300 font-bold py-3 rounded uppercase tracking-widest text-sm transition-all duration-300"
           >
-            &gt; Back_To_Login
-          </a>
+            &gt; Create_Account
+          </button>
           <div className="mt-12 pt-8 border-t border-slate-800 text-center">
             <div className="text-xs text-slate-600 space-y-2">
               <div>
                 &gt; System Status: [ <span className="text-emerald-500">OPERATIONAL</span> ]
+              </div>
+              <div>
+                &gt; Last Login: [ <span className="text-slate-500">UNKNOWN</span> ]
               </div>
               <div>&gt; Security Level: [ <span className="text-cyan-400">HIGH</span> ]</div>
             </div>
