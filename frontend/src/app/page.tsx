@@ -1,65 +1,200 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+    <div className="bg-slate-950 text-slate-300 min-h-screen relative overflow-hidden">
+
+      <div className="scanline"></div>
+      <div className="absolute inset-0 opacity-5 bg-grid-pattern"></div>
+      <nav className="flex justify-between items-center px-10 py-6 border-b border-slate-900 relative z-10">
+        <div className="text-cyan-400 font-bold tracking-widest">
+          <a href="/">
+            BREAK_POINT
           </a>
         </div>
-      </main>
+
+        <div className="flex gap-6 text-sm text-slate-400">
+          <a href="/register" className="hover:text-cyan-400 transition">Register</a>
+          <a href="/login" className="hover:text-cyan-400 transition">Login</a>
+        </div>
+      </nav>
+
+      <div className="absolute top-20 left-20 text-slate-800 text-xs font-mono">
+        &gt; system.boot.sequence...
+      </div>
+
+      <div className="absolute bottom-20 right-20 text-slate-800 text-xs font-mono">
+        &gt; security.protocols.active...
+      </div>
+
+      <section className="max-w-5xl mx-auto px-8 pt-32 text-center relative z-10">
+
+        <h1 className="cyber-glow text-6xl font-bold tracking-[0.3em] mb-6 flicker">
+          BREAK_POINT
+        </h1>
+
+        <p className="text-slate-400 text-xl tracking-widest uppercase mb-8">
+          &gt; Security Testing Lab Platform
+        </p>
+
+        <p className="text-slate-400 text-lg leading-relaxed mb-12 max-w-2xl mx-auto">
+          Practice exploiting real web vulnerabilities in a safe sandboxed
+          environment. Discover hidden Tokens, solve security challenges,
+          and develop real offensive security skills.
+        </p>
+
+        <div className="flex gap-6 justify-center mb-20">
+          <a
+            href="/login"
+            className="bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-4 px-8 rounded uppercase tracking-widest text-sm transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/50"
+          >
+            &gt; Access_Terminal
+          </a>
+
+          <a
+            href="/register"
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-300 font-bold py-4 px-8 rounded uppercase tracking-widest text-sm transition-all duration-300"
+          >
+            &gt; Create_Account
+          </a>
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-8 py-24 text-center">
+
+        <h2 className="text-cyan-400 text-2xl font-bold tracking-widest mb-6">
+          &gt; WHAT_IS_BREAKPOINT
+        </h2>
+
+        <p className="text-slate-400 max-w-3xl mx-auto leading-relaxed">
+          BreakPoint is an interactive cybersecurity training platform where
+          users analyze intentionally vulnerable applications to discover
+          hidden Tokens. Each lab simulates real-world security flaws such as
+          XSS, CSRF, authentication bypass, and logic vulnerabilities in a
+          fully sandboxed environment.
+        </p>
+
+      </section>
+
+      <section className="max-w-6xl mx-auto px-8 py-20">
+
+        <h2 className="text-cyan-400 text-2xl font-bold tracking-widest text-center mb-16">
+          &gt; HOW_IT_WORKS
+        </h2>
+
+        <div className="grid md:grid-cols-4 gap-8 text-center">
+
+          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-lg">
+            <div className="text-cyan-400 text-xl mb-3">1</div>
+            <p className="text-sm text-slate-400">
+              Enter a sandboxed vulnerable lab environment.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-lg">
+            <div className="text-cyan-400 text-xl mb-3">2</div>
+            <p className="text-sm text-slate-400">
+              Analyze inputs, requests, and application logic.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-lg">
+            <div className="text-cyan-400 text-xl mb-3">3</div>
+            <p className="text-sm text-slate-400">
+              Exploit the vulnerability to discover a hidden Token.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-lg">
+            <div className="text-cyan-400 text-xl mb-3">4</div>
+            <p className="text-sm text-slate-400">
+              Submit the Token and earn points for completion.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-8 py-24">
+
+        <h2 className="text-cyan-400 text-2xl font-bold tracking-widest text-center mb-16">
+          &gt; LAB_CATEGORIES
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+
+          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-lg hover:border-cyan-400 transition">
+            <h3 className="text-white font-bold mb-2">Cross-Site Scripting</h3>
+            <p className="text-slate-500 text-sm">
+              Inject malicious scripts and exploit unsafe input handling.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-lg hover:border-cyan-400 transition">
+            <h3 className="text-white font-bold mb-2">CSRF Attacks</h3>
+            <p className="text-slate-500 text-sm">
+              Exploit authenticated sessions through forged requests.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-lg hover:border-cyan-400 transition">
+            <h3 className="text-white font-bold mb-2">Logic Flaws</h3>
+            <p className="text-slate-500 text-sm">
+              Discover unexpected weaknesses in application logic.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-8 py-24 text-center">
+
+        <h2 className="text-cyan-400 text-2xl font-bold tracking-widest mb-6">
+          &gt; TRACK_PROGRESS
+        </h2>
+
+        <p className="text-slate-400 max-w-2xl mx-auto mb-12">
+          Earn points, unlock achievements, and compete with other security
+          enthusiasts on the leaderboard as you progress through increasingly
+          challenging labs.
+        </p>
+
+        <div className="flex justify-center gap-12 text-sm text-slate-500">
+
+          <div>XP Rewards</div>
+          <div>Achievements</div>
+          <div>Leaderboards</div>
+          <div>Lab History</div>
+
+        </div>
+
+      </section>
+
+      <section className="text-center py-24">
+
+        <h2 className="text-white text-2xl font-bold mb-6">
+          Ready to test your security skills?
+        </h2>
+
+        <a
+          href="/register"
+          className="bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-4 px-10 rounded uppercase tracking-widest text-sm transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/50"
+        >
+          &gt; Start_Hacking
+        </a>
+
+      </section>
+
+      <footer className="border-t border-slate-800 py-10 text-center text-xs text-slate-600">
+
+        <div className="mb-2">
+          BreakPoint © {new Date().getFullYear()}
+        </div>
+
+        <div>
+          Security Testing Lab Platform
+        </div>
+
+      </footer>
+
     </div>
   );
 }

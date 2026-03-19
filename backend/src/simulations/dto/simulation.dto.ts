@@ -19,7 +19,7 @@ export class SimulationDto {
 
     @IsString()
     @IsNotEmpty()
-    @IsEnum(['Easy', 'Normal', 'Hard', 'Instane'])
+    @IsEnum(['Easy', 'Normal', 'Hard', 'Insane'])
     difficulty: string;
 
     @IsNumber()

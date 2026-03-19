@@ -16,16 +16,49 @@ import { SimulationDto, UpdateSimulationDto } from './dto/simulation.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { RoleGuard } from '../guards/roles.guard';
+import { AttemptsService } from '../attempts/attempts.service';
+
+const DIFFICULTY_FILTERS = ['Easy', 'Normal', 'Hard', 'Insane'] as const;
+const STATUS_FILTERS = ['Active', 'Locked'] as const;
+
+type DifficultyFilter = (typeof DIFFICULTY_FILTERS)[number];
+type StatusFilter = (typeof STATUS_FILTERS)[number];
+
+function parseDifficultyFilter(value?: string): DifficultyFilter | undefined {
+	if (!value) return undefined;
+	return DIFFICULTY_FILTERS.includes(value as DifficultyFilter)
+		? (value as DifficultyFilter)
+		: undefined;
+}
+
+function parseStatusFilter(value?: string): StatusFilter | undefined {
+	if (!value) return undefined;
+	return STATUS_FILTERS.includes(value as StatusFilter)
+		? (value as StatusFilter)
+		: undefined;
+}
 
 @Controller('simulations')
 export class SimulationsController {
-	constructor(private readonly simulationsService: SimulationsService) {}
+	constructor(
+		private readonly simulationsService: SimulationsService,
+		private readonly attemptsService: AttemptsService,
+	) {}
 
 	@Get()
-	async findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
-		const pageNum = parseInt(page) || 1;
-		const limitNum = parseInt(limit) || 20;
-		return this.simulationsService.getSimulations(pageNum, limitNum);
+	async findAll(
+		@Query('page') page?: string,
+		@Query('limit') limit?: string,
+		@Query('difficulty') difficulty?: string,
+		@Query('status') status?: string,
+	) {
+		const pageNum = Math.max(1, parseInt(page ?? '1', 10) || 1);
+		const limitNum = Math.min(50, Math.max(1, parseInt(limit ?? '20', 10) || 20));
+
+		return this.simulationsService.getSimulations(pageNum, limitNum, {
+			difficulty: parseDifficultyFilter(difficulty),
+			status: parseStatusFilter(status),
+		});
 	}
 
 	@Get(':id')
@@ -50,7 +83,10 @@ export class SimulationsController {
 		if (!userId) {
 			throw new BadRequestException('Missing user id');
 		}
-		return this.simulationsService.startSimulation(id, userId);
+
+		// Validate simulation existence before creating attempt.
+		await this.simulationsService.getSimulationById(id);
+		return this.attemptsService.startSimulationAttempt(userId, id);
 	}
 
 	@Get(':simulationId/attempts')

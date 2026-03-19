@@ -1,8 +1,8 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
 enum Role {
-  ADMIN = 'admin',
-  PARTICIPANT = 'participant',
+  ADMIN = 'ADMIN',
+  PARTICIPANT = 'PARTICIPANT',
 }
 
 export class UpdateRoleDto {

@@ -9,7 +9,7 @@ export class Simulation extends Document {
   @Prop({ required: true, lowercase: true })
   description: string;
 
-  @Prop({ required: true, enum: ['Easy', 'Normal', 'Hard', 'Instane'] })
+  @Prop({ required: true, enum: ['Easy', 'Normal', 'Hard', 'Insane'] })
   difficulty: string;
 
   @Prop({ default: 1, required: true })
