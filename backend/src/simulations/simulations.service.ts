@@ -5,6 +5,11 @@ import { Model, Types } from 'mongoose';
 import { SimulationDto } from './dto/simulation.dto';
 import { InjectModel } from '@nestjs/mongoose';
 
+type SimulationFilters = {
+    difficulty?: 'Easy' | 'Normal' | 'Hard' | 'Insane';
+    status?: 'Active' | 'Locked';
+};
+
 @Injectable()
 export class SimulationsService {
     constructor(
@@ -12,11 +17,25 @@ export class SimulationsService {
         @InjectModel('Attempt') private readonly attemptModel: Model<Attempt>,
     ) { }
 
-    async getSimulations(page: number = 1, limit: number = 20) {
+    async getSimulations(
+        page: number = 1,
+        limit: number = 20,
+        filters: SimulationFilters = {},
+    ) {
         const skip = (page - 1) * limit;
+        const query: SimulationFilters = {};
+
+        if (filters.difficulty) {
+            query.difficulty = filters.difficulty;
+        }
+
+        if (filters.status) {
+            query.status = filters.status;
+        }
+
         const [data, total] = await Promise.all([
-            this.simulationModel.find().skip(skip).limit(limit).exec(),
-            this.simulationModel.countDocuments().exec(),
+            this.simulationModel.find(query).skip(skip).limit(limit).exec(),
+            this.simulationModel.countDocuments(query).exec(),
         ]);
         return {
             data,
