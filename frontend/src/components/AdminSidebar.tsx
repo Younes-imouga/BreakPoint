@@ -23,7 +23,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col p-6 z-20 shrink-0">
+    <aside className="w-64 h-screen sticky top-0 bg-slate-900 border-r border-slate-800 flex flex-col p-6 z-20 shrink-0 overflow-y-auto">
       <div className="mb-10">
         <h1 className="text-red-500 text-xl font-bold tracking-tighter uppercase italic">
           Break_Point<span className="animate-pulse text-red-500">_ADMIN</span>
@@ -74,8 +74,7 @@ export default function AdminSidebar() {
           <span>[⚠]</span> Security Log
         </a>
       </nav>
-
-      <div className="mt-auto pt-6 border-t border-slate-800 my-4">
+      <div className="pt-6 border-t border-slate-800 mt-24 my-4">
         <div className="text-xs text-slate-500 mb-2 uppercase">Admin User</div>
         <div className="font-bold text-red-400">ADMIN_ROOT</div>
         <div className="text-xs text-slate-500 mt-2">Permission: FULL_ACCESS</div>
@@ -83,7 +82,7 @@ export default function AdminSidebar() {
       <AdminControlButtons
         onSystemStatus={() => console.log('System status check')}
         onLogout={() => {
-          logout();
+          handleLogout();
           router.push('/login');
         }}
       />
