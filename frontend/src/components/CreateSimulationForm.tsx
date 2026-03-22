@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { simulationsApi, type SimulationPayload } from '@/lib/api/simulations';
+import {
+  simulationsApi,
+  type SimulationDto,
+  type SimulationPayload,
+} from '@/lib/api/simulations';
 
 const INITIAL_FORM: SimulationPayload = {
   name: '',
@@ -15,13 +19,49 @@ const INITIAL_FORM: SimulationPayload = {
   score: 100,
 };
 
-export default function CreateSimulationForm() {
+type CreateSimulationFormProps = {
+  selectedSimulation?: SimulationDto | null;
+  onSaved?: () => void;
+  onCancelEdit?: () => void;
+};
+
+export default function CreateSimulationForm({
+  selectedSimulation,
+  onSaved,
+  onCancelEdit,
+}: CreateSimulationFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<SimulationPayload>(INITIAL_FORM);
   const [hintsInput, setHintsInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  const isEditMode = useMemo(() => Boolean(selectedSimulation), [selectedSimulation]);
+
+  useEffect(() => {
+    if (!selectedSimulation) {
+      setForm(INITIAL_FORM);
+      setHintsInput('');
+      setErrorMessage('');
+      setSuccessMessage('');
+      return;
+    }
+
+    setForm({
+      name: selectedSimulation.name,
+      description: selectedSimulation.description,
+      difficulty: selectedSimulation.difficulty,
+      token_count: selectedSimulation.token_count,
+      minimum_exp: selectedSimulation.minimum_exp,
+      status: selectedSimulation.status,
+      hint: selectedSimulation.hint ?? [],
+      score: selectedSimulation.score,
+    });
+    setHintsInput((selectedSimulation.hint ?? []).join('\n'));
+    setErrorMessage('');
+    setSuccessMessage('');
+  }, [selectedSimulation]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -38,10 +78,21 @@ export default function CreateSimulationForm() {
 
     try {
       setIsSubmitting(true);
-      await simulationsApi.create(payload);
-      setSuccessMessage('Simulation created successfully.');
+      if (selectedSimulation?._id) {
+        await simulationsApi.update(selectedSimulation._id, payload);
+        setSuccessMessage('Simulation updated successfully.');
+      } else {
+        await simulationsApi.create(payload);
+        setSuccessMessage('Simulation created successfully.');
+      }
+
       setForm(INITIAL_FORM);
       setHintsInput('');
+
+      if (onSaved) {
+        onSaved();
+      }
+
       router.refresh();
     } catch (error: unknown) {
       let message = 'Failed to create simulation.';
@@ -78,9 +129,13 @@ export default function CreateSimulationForm() {
 
   return (
     <section className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
-      <h3 className="text-red-400 font-bold uppercase text-sm mb-4">Create Simulation</h3>
+      <h3 className="text-red-400 font-bold uppercase text-sm mb-4">
+        {isEditMode ? 'Edit Simulation' : 'Create Simulation'}
+      </h3>
       <p className="text-xs text-slate-500 mb-6">
-        Fill in all fields to create a new simulation.
+        {isEditMode
+          ? 'Update fields and save your changes.'
+          : 'Fill in all fields to create a new simulation.'}
       </p>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -244,8 +299,30 @@ export default function CreateSimulationForm() {
           disabled={isSubmitting}
           className="w-full bg-red-900/40 border border-red-700 text-red-300 font-bold py-2 rounded disabled:opacity-60"
         >
-          {isSubmitting ? 'CREATING_SIMULATION...' : 'CREATE_SIMULATION'}
+          {isSubmitting
+            ? isEditMode
+              ? 'UPDATING_SIMULATION...'
+              : 'CREATING_SIMULATION...'
+            : isEditMode
+              ? 'UPDATE_SIMULATION'
+              : 'CREATE_SIMULATION'}
         </button>
+
+        {isEditMode ? (
+          <button
+            type="button"
+            onClick={() => {
+              setForm(INITIAL_FORM);
+              setHintsInput('');
+              setErrorMessage('');
+              setSuccessMessage('');
+              onCancelEdit?.();
+            }}
+            className="w-full bg-slate-900 border border-slate-700 text-slate-300 font-bold py-2 rounded hover:bg-slate-800"
+          >
+            CANCEL_EDIT
+          </button>
+        ) : null}
 
         {errorMessage ? <p className="text-sm text-red-400">{errorMessage}</p> : null}
         {successMessage ? <p className="text-sm text-emerald-400">{successMessage}</p> : null}

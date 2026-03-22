@@ -1,6 +1,5 @@
 import AdminSidebar from '@/components/AdminSidebar';
-import CreateSimulationForm from '@/components/CreateSimulationForm';
-import AdminSimulationsPanel from '@/components/AdminSimulationsPanel';
+import AdminLabsManager from '@/components/AdminLabsManager';
 import type { PaginatedSimulationsResponse } from '@/lib/api/simulations';
 
 const API_BASE_URL = process.env.NEXT_API_URL || 'http://localhost:3000';
@@ -128,7 +127,7 @@ export default async function AdminLabsPage({
         </div>
 
         <div className="p-8 grid grid-cols-1 xl:grid-cols-3 gap-8">
-          <AdminSimulationsPanel
+          <AdminLabsManager
             simulations={simulations.data}
             total={simulations.total}
             page={simulations.page}
@@ -137,10 +136,6 @@ export default async function AdminLabsPage({
             initialDifficulty={difficulty}
             initialStatus={status}
           />
-
-          <div className="xl:sticky xl:top-24 self-start">
-            <CreateSimulationForm />
-          </div>
         </div>
       </main>
     </div>

@@ -14,6 +14,10 @@ type AdminSimulationsPanelProps = {
   totalPages: number;
   initialDifficulty?: string;
   initialStatus?: string;
+  selectedSimulationId?: string | null;
+  deletingId?: string | null;
+  onEdit: (simulation: SimulationDto) => void;
+  onDelete: (simulationId: string) => void;
 };
 
 const DIFFICULTY_OPTIONS: DifficultyFilter[] = ['ALL', 'Easy', 'Normal', 'Hard', 'Insane'];
@@ -60,6 +64,10 @@ export default function AdminSimulationsPanel({
   totalPages,
   initialDifficulty,
   initialStatus,
+  selectedSimulationId,
+  deletingId,
+  onEdit,
+  onDelete,
 }: AdminSimulationsPanelProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -179,7 +187,11 @@ export default function AdminSimulationsPanel({
           {simulations.map((simulation) => (
             <article
               key={simulation._id}
-              className="rounded-lg border border-slate-800 bg-linear-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_0_1px_rgba(30,41,59,0.3)]"
+              className={`rounded-lg border bg-linear-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_0_1px_rgba(30,41,59,0.3)] ${
+                selectedSimulationId === simulation._id
+                  ? 'border-cyan-500/80'
+                  : 'border-slate-800'
+              }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -243,6 +255,24 @@ export default function AdminSimulationsPanel({
                 <div>Created by: {shortValue(simulation.createdBy)}</div>
                 <div>Created at: {formatDate(simulation.createdAt)}</div>
                 <div>Updated at: {formatDate(simulation.updatedAt)}</div>
+              </div>
+
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => onEdit(simulation)}
+                  className="flex-1 px-3 py-2 text-xs uppercase tracking-wide rounded border border-cyan-700 text-cyan-300 hover:bg-cyan-900/30"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  disabled={deletingId === simulation._id}
+                  onClick={() => onDelete(simulation._id)}
+                  className="flex-1 px-3 py-2 text-xs uppercase tracking-wide rounded border border-red-700 text-red-300 hover:bg-red-900/30 disabled:opacity-60"
+                >
+                  {deletingId === simulation._id ? 'Deleting...' : 'Delete'}
+                </button>
               </div>
             </article>
           ))}
