@@ -1,4 +1,5 @@
 import AdminSidebar from '@/components/AdminSidebar';
+import CreateSimulationForm from '@/components/CreateSimulationForm';
 import AdminSimulationsPanel from '@/components/AdminSimulationsPanel';
 import type { PaginatedSimulationsResponse } from '@/lib/api/simulations';
 
@@ -137,6 +138,9 @@ export default async function AdminLabsPage({
             initialStatus={status}
           />
 
+          <div className="xl:sticky xl:top-24 self-start">
+            <CreateSimulationForm />
+          </div>
         </div>
       </main>
     </div>

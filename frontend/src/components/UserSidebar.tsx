@@ -14,7 +14,7 @@ export default function UserSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col p-6 z-20 shrink-0">
+    <aside className="w-64 h-screen sticky top-0 bg-slate-900 border-r border-slate-800 flex flex-col p-6 z-20 shrink-0 overflow-y-auto">
       <div className="mb-10">
         <h1 className="text-cyan-400 text-xl font-bold tracking-tighter uppercase italic">
           Break_Point<span className="animate-pulse">_</span>
