@@ -3,6 +3,7 @@ import { get, post, patch, remove } from './api';
 export interface SimulationDto {
 	_id: string;
 	name: string;
+	slug: string;
 	description: string;
 	difficulty: 'Easy' | 'Normal' | 'Hard' | 'Insane';
 	token_count: number;
@@ -11,6 +12,12 @@ export interface SimulationDto {
 	hint?: string[];
 	score: number;
 	createdBy: string;
+	metadata?: Record<string, unknown>;
+	components?: Array<{
+		fileName: string;
+		language: string;
+		content: string;
+	}>;
 	createdAt?: string;
 	updatedAt?: string;
 }
@@ -24,6 +31,11 @@ export interface SimulationPayload {
 	status?: 'Active' | 'Locked';
 	hint?: string[];
 	score?: number;
+	components?: Array<{
+		fileName: string;
+		language?: string;
+		content: string;
+	}>;
 }
 
 export interface PaginatedSimulationsResponse {

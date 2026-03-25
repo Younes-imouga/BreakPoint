@@ -3,6 +3,21 @@ import { Document, Types } from 'mongoose';
 
 export type AttemptDocument = Attempt & Document;
 
+@Schema({ _id: false })
+export class AttemptComponentSnapshot {
+  @Prop({ type: String, required: true })
+  fileName: string;
+
+  @Prop({ type: String, default: 'html' })
+  language: string;
+
+  @Prop({ type: String, required: true })
+  content: string;
+}
+
+export const AttemptComponentSnapshotSchema =
+  SchemaFactory.createForClass(AttemptComponentSnapshot);
+
 @Schema({ timestamps: true })
 export class Attempt extends Document {
   @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
@@ -25,6 +40,12 @@ export class Attempt extends Document {
 
   @Prop({ type: Number, default: null })
   final_score: number | null;
+
+  @Prop({
+    type: AttemptComponentSnapshotSchema,
+    required: false,
+  })
+  component?: AttemptComponentSnapshot;
 }
 
 export const AttemptSchema = SchemaFactory.createForClass(Attempt);
