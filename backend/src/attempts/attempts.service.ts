@@ -44,21 +44,92 @@ export class AttemptsService {
   }
 
   public sanitizeAttempt<T extends { toObject?: () => any }>(attempt: T): any {
-    const raw = typeof attempt?.toObject === 'function' ? attempt.toObject() : attempt;
-    const { token: _token, ...safeAttempt } = raw;
-    return safeAttempt;
+    return typeof attempt?.toObject === 'function' ? attempt.toObject() : attempt;
   }
 
   public sanitizeAttempts(attempts: Array<{ toObject?: () => any }>): any[] {
     return attempts.map((attempt) => this.sanitizeAttempt(attempt));
   }
 
+  private buildComponentSnapshotFromSimulation(simulation: any, token: string) {
+    const selectedComponent = Array.isArray(simulation?.components)
+      ? simulation.components[0]
+      : simulation?.component;
+
+    if (!selectedComponent || typeof selectedComponent.content !== 'string') {
+      return null;
+    }
+
+    const simulationToken = simulation?.token;
+
+    let componentContent: string = selectedComponent.content;
+    componentContent = componentContent.replace(/__ATTEMPT_TOKEN__|ATTEMPT_TOKEN/g, token);
+
+    if (typeof simulationToken === 'string' && simulationToken.length > 0) {
+      componentContent = componentContent.split(simulationToken).join(token);
+    } else {
+      componentContent = componentContent.replace(/BP\{[^}]+\}/g, token);
+    }
+
+    return {
+      fileName:
+        typeof selectedComponent.fileName === 'string' && selectedComponent.fileName.trim()
+          ? selectedComponent.fileName
+          : 'simulation.html',
+      language:
+        typeof selectedComponent.language === 'string' && selectedComponent.language.trim()
+          ? selectedComponent.language
+          : 'html',
+      content: componentContent,
+    };
+  }
+
+  private async ensureAttemptComponentSnapshot(attempt: AttemptDocument) {
+    if ((attempt as any).component?.content) {
+      return;
+    }
+
+    const simulation = await this.simulationModel
+      .findById(attempt.simulation_id)
+      .select('components +token')
+      .lean()
+      .exec();
+
+    if (!simulation) {
+      return;
+    }
+
+    const snapshot = this.buildComponentSnapshotFromSimulation(simulation, attempt.token);
+    if (!snapshot) {
+      return;
+    }
+
+    (attempt as any).component = snapshot;
+    await attempt.save();
+  }
+
   private async createAndSaveAttempt(userId: string, simulationId: string) {
+    const simulation = await this.simulationModel
+      .findById(simulationId)
+      .select('components')
+      .lean()
+      .exec();
+
+    if (!simulation) {
+      throw new NotFoundException('Simulation not found');
+    }
+
     const token = await this.generateUniqueToken();
+    const normalizedSnapshot = this.buildComponentSnapshotFromSimulation(simulation as any, token) ??  null;
+    if (!normalizedSnapshot) {
+      throw new BadRequestException('Simulation has no runnable component');
+    }
+
     const attempt = new this.attemptModel({
       user_id: new Types.ObjectId(userId),
       simulation_id: new Types.ObjectId(simulationId),
       token,
+      component: normalizedSnapshot,
       attempts: [],
       hints_used: 0,
       success: null,
@@ -70,8 +141,27 @@ export class AttemptsService {
   }
 
   async createAttempt(userId: string, dto: CreateAttemptDto) {
-    // Prevent creating if user has an active attempt (success === null)
-    const active = await this.attemptModel.findOne({ user_id: new Types.ObjectId(userId), success: null }).exec();
+    const userObjectId = new Types.ObjectId(userId);
+    const simulationObjectId = new Types.ObjectId(dto.simulation_id);
+
+    // Prevent creating if user has already successfully completed this simulation
+    const completed = await this.attemptModel
+      .findOne({ user_id: userObjectId, simulation_id: simulationObjectId, success: true })
+      .select('_id')
+      .lean()
+      .exec();
+
+    if (completed) {
+      throw new ConflictException('You have already completed this lab');
+    }
+
+    // Prevent creating if user has any active attempt (success === null)
+    const active = await this.attemptModel
+      .findOne({ user_id: userObjectId, success: null })
+      .select('_id')
+      .lean()
+      .exec();
+
     if (active) {
       throw new ConflictException('You have an active attempt. Complete it before creating a new one');
     }
@@ -80,10 +170,24 @@ export class AttemptsService {
   }
 
   async startSimulationAttempt(userId: string, simulationId: string) {
+    const userObjectId = new Types.ObjectId(userId);
+    const simulationObjectId = new Types.ObjectId(simulationId);
+
+    // Block starting if the simulation was already completed by this user
+    const completed = await this.attemptModel
+      .findOne({ user_id: userObjectId, simulation_id: simulationObjectId, success: true })
+      .select('_id')
+      .lean()
+      .exec();
+
+    if (completed) {
+      throw new ConflictException('You have already completed this lab');
+    }
+
     const existingAttempt = await this.attemptModel
       .findOne({
-        user_id: new Types.ObjectId(userId),
-        simulation_id: new Types.ObjectId(simulationId),
+        user_id: userObjectId,
+        simulation_id: simulationObjectId,
         success: null,
       })
       .exec();
@@ -98,16 +202,19 @@ export class AttemptsService {
   async getAttemptById(id: string) {
     const attempt = await this.attemptModel.findById(id).exec();
     if (!attempt) throw new NotFoundException('Attempt not found');
+    await this.ensureAttemptComponentSnapshot(attempt);
     return attempt;
   }
 
   async getAttemptsByUser(userId: string) {
     const attempts = await this.attemptModel.find({ user_id: new Types.ObjectId(userId) }).exec();
+    await Promise.all(attempts.map((attempt) => this.ensureAttemptComponentSnapshot(attempt)));
     return this.sanitizeAttempts(attempts);
   }
 
   async getAttemptsBySimulation(simulationId: string) {
     const attempts = await this.attemptModel.find({ simulation_id: new Types.ObjectId(simulationId) }).exec();
+    await Promise.all(attempts.map((attempt) => this.ensureAttemptComponentSnapshot(attempt)));
     return this.sanitizeAttempts(attempts);
   }
 
@@ -145,6 +252,18 @@ export class AttemptsService {
   async submitToken(attemptId: string, submittedToken: string) {
     const attempt = await this.attemptModel.findById(attemptId).exec();
     if (!attempt) throw new NotFoundException('Attempt not found');
+
+    if (attempt.success === true) {
+      throw new ConflictException('Attempt already completed');
+    }
+
+    if (attempt.success === false || (attempt.attempts?.length ?? 0) >= 3) {
+      if (attempt.success === null) {
+        attempt.success = false;
+        await attempt.save();
+      }
+      throw new ConflictException('Attempt already failed after 3 submissions');
+    }
 
     // push submitted token
     attempt.attempts.push(submittedToken);
