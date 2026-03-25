@@ -6,6 +6,12 @@ export class Simulation extends Document {
   @Prop({ required: true, unique: true })
   name: string;
 
+  @Prop({ required: true, unique: true, lowercase: true, trim: true })
+  slug: string;
+
+  @Prop({ required: false, trim: true, select: false })
+  token?: string;
+
   @Prop({ required: true, lowercase: true })
   description: string;
 
@@ -29,6 +35,25 @@ export class Simulation extends Document {
 
   @Prop({ required: true, type: Types.ObjectId, ref: "User" })
   createdBy: Types.ObjectId;
+
+  @Prop({ type: Object, default: {} })
+  metadata: Record<string, unknown>;
+
+  @Prop({
+    type: [
+      {
+        fileName: { type: String, required: true },
+        language: { type: String, default: 'html' },
+        content: { type: String, required: true },
+      },
+    ],
+    default: [],
+  })
+  components: Array<{
+    fileName: string;
+    language: string;
+    content: string;
+  }>;
 }
 
 export const SimulationSchema = SchemaFactory.createForClass(Simulation);

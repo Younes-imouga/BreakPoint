@@ -5,13 +5,38 @@ import {
     IsNumber,
     IsEnum,
     IsArray,
+    IsObject,
+    ValidateNested,
 } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
+import { Type } from 'class-transformer';
+
+class SimulationComponentDto {
+    @IsString()
+    @IsNotEmpty()
+    fileName: string;
+
+    @IsString()
+    @IsOptional()
+    language?: string;
+
+    @IsString()
+    @IsNotEmpty()
+    content: string;
+}
 
 export class SimulationDto {
     @IsString()
     @IsNotEmpty()
     name: string;
+
+    @IsString()
+    @IsOptional()
+    slug?: string;
+
+    @IsString()
+    @IsOptional()
+    token?: string;
 
     @IsString()
     @IsNotEmpty()
@@ -42,6 +67,16 @@ export class SimulationDto {
     @IsNumber()
     @IsOptional()
     score?: number;
+
+    @IsObject()
+    @IsOptional()
+    metadata?: Record<string, unknown>;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => SimulationComponentDto)
+    @IsOptional()
+    components?: SimulationComponentDto[];
 }
 
 export class UpdateSimulationDto extends PartialType(SimulationDto) { }
