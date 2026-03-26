@@ -10,12 +10,34 @@ type SimulationFilters = {
     status?: 'Active' | 'Locked';
 };
 
+function toSlug(value: string): string {
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+}
+
 @Injectable()
 export class SimulationsService {
     constructor(
         @InjectModel('Simulation') private readonly simulationModel: Model<Simulation>,
         @InjectModel('Attempt') private readonly attemptModel: Model<Attempt>,
     ) { }
+
+    private async generateUniqueSlug(name: string): Promise<string> {
+        const baseSlug = toSlug(name) || 'simulation';
+        let slug = baseSlug;
+        let suffix = 1;
+
+        while (await this.simulationModel.exists({ slug })) {
+            slug = `${baseSlug}-${suffix}`;
+            suffix += 1;
+        }
+
+        return slug;
+    }
 
     async getSimulations(
         page: number = 1,
@@ -53,7 +75,14 @@ export class SimulationsService {
         if (existingUser) {
             throw new ConflictException('Simulation name already in use');
         }
-        return this.simulationModel.create({ ...simulationDto, createdBy: new Types.ObjectId(user_id) });
+
+        const slug = await this.generateUniqueSlug(simulationDto.name);
+
+        return this.simulationModel.create({
+            ...simulationDto,
+            slug,
+            createdBy: new Types.ObjectId(user_id),
+        });
     }
 
     async getSimulationById(id: string) {
