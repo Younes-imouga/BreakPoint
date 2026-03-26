@@ -7,6 +7,9 @@ interface SimulationCardProps {
   progress?: number;
   isLocked?: boolean;
   requiredXP?: number;
+  actionLabel?: string;
+  onAction?: () => void;
+  actionDisabled?: boolean;
 }
 
 export default function SimulationCard({
@@ -18,6 +21,9 @@ export default function SimulationCard({
   progress = 0,
   isLocked = false,
   requiredXP,
+  actionLabel,
+  onAction,
+  actionDisabled = false,
 }: SimulationCardProps) {
   const difficultyColors = {
     Easy: 'text-emerald-500',
@@ -110,8 +116,17 @@ export default function SimulationCard({
           <span className="text-white font-bold text-sm">
             {xp} <span className="text-slate-500 text-[10px]">XP</span>
           </span>
-          <button className="bg-slate-950 hover:bg-cyan-600 hover:text-slate-950 border border-cyan-900 px-4 py-2 text-[10px] font-bold uppercase tracking-tighter transition-colors">
-            {progress > 0 ? 'Resume_Lab' : 'Execute_Simulation'}
+          {progress === 100 ? (
+            <span className="text-emerald-400 text-[10px] font-bold uppercase mr-2">
+              [ COMPLETED ]
+            </span>
+          ) : null}
+          <button
+            onClick={onAction}
+            disabled={actionDisabled}
+            className="bg-slate-950 hover:bg-cyan-600 hover:text-slate-950 border border-cyan-900 px-4 py-2 text-[10px] font-bold uppercase tracking-tighter transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {actionLabel ?? (progress > 0 ? 'Resume_Lab' : 'Execute_Simulation')}
           </button>
         </div>
       </div>

@@ -2,17 +2,33 @@
 import { useState } from 'react';
 
 interface QuickFlagSubmitProps {
-  onSubmit?: (flag: string) => void;
+  onSubmit?: (flag: string) => void | Promise<void>;
 }
 
 export default function QuickFlagSubmit({ onSubmit }: QuickFlagSubmitProps) {
   const [flag, setFlag] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSubmit && flag.trim()) {
-      onSubmit(flag);
+    if (!onSubmit || !flag.trim()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      await onSubmit(flag.trim());
       setFlag('');
+      setMessage('Token submitted.');
+    } catch (error) {
+      const nextMessage =
+        error instanceof Error ? error.message : 'Token submission failed.';
+      setMessage(nextMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -27,10 +43,13 @@ export default function QuickFlagSubmit({ onSubmit }: QuickFlagSubmitProps) {
       />
       <button
         type="submit"
-        className="bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold px-8 rounded transition uppercase text-sm"
+        disabled={isSubmitting}
+        className="bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold px-8 rounded transition uppercase text-sm disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        Submit_Flag
+        {isSubmitting ? 'Submitting...' : 'Submit_Flag'}
       </button>
+
+      {message ? <p className="text-xs text-slate-400 self-center">{message}</p> : null}
     </form>
   );
 }
