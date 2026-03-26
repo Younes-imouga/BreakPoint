@@ -33,6 +33,9 @@ export default function CreateSimulationForm({
   const router = useRouter();
   const [form, setForm] = useState<SimulationPayload>(INITIAL_FORM);
   const [hintsInput, setHintsInput] = useState('');
+  const [componentFileName, setComponentFileName] = useState('simulation.html');
+  const [componentLanguage, setComponentLanguage] = useState('html');
+  const [componentContent, setComponentContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -43,10 +46,15 @@ export default function CreateSimulationForm({
     if (!selectedSimulation) {
       setForm(INITIAL_FORM);
       setHintsInput('');
+      setComponentFileName('simulation.html');
+      setComponentLanguage('html');
+      setComponentContent('');
       setErrorMessage('');
       setSuccessMessage('');
       return;
     }
+
+    const firstComponent = selectedSimulation.components?.[0];
 
     setForm({
       name: selectedSimulation.name,
@@ -59,6 +67,9 @@ export default function CreateSimulationForm({
       score: selectedSimulation.score,
     });
     setHintsInput((selectedSimulation.hint ?? []).join('\n'));
+    setComponentFileName(firstComponent?.fileName ?? 'simulation.html');
+    setComponentLanguage(firstComponent?.language ?? 'html');
+    setComponentContent(firstComponent?.content ?? '');
     setErrorMessage('');
     setSuccessMessage('');
   }, [selectedSimulation]);
@@ -76,6 +87,19 @@ export default function CreateSimulationForm({
         .filter(Boolean),
     };
 
+    const trimmedContent = componentContent.trim();
+    if (trimmedContent) {
+      payload.components = [
+        {
+          fileName: componentFileName.trim() || 'simulation.html',
+          language: componentLanguage.trim() || 'html',
+          content: trimmedContent,
+        },
+      ];
+    } else {
+      payload.components = undefined;
+    }
+
     try {
       setIsSubmitting(true);
       if (selectedSimulation?._id) {
@@ -88,6 +112,9 @@ export default function CreateSimulationForm({
 
       setForm(INITIAL_FORM);
       setHintsInput('');
+      setComponentFileName('simulation.html');
+      setComponentLanguage('html');
+      setComponentContent('');
 
       if (onSaved) {
         onSaved();
@@ -294,6 +321,55 @@ export default function CreateSimulationForm({
           />
         </div>
 
+        <div>
+          <h4 className="text-xs text-slate-400 mb-2 uppercase">Lab Component</h4>
+          <p className="text-[10px] text-slate-500 mb-3">
+            Define the vulnerable lab component that will be rendered for this simulation.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label htmlFor="component_fileName" className="block text-[10px] text-slate-500 mb-1 uppercase">
+                File Name
+              </label>
+              <input
+                id="component_fileName"
+                type="text"
+                value={componentFileName}
+                onChange={(event) => setComponentFileName(event.target.value)}
+                placeholder="simulation.html"
+                className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="component_language" className="block text-[10px] text-slate-500 mb-1 uppercase">
+                Language
+              </label>
+              <input
+                id="component_language"
+                type="text"
+                value={componentLanguage}
+                onChange={(event) => setComponentLanguage(event.target.value)}
+                placeholder="html"
+                className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs"
+              />
+            </div>
+          </div>
+
+          <label htmlFor="component_content" className="block text-[10px] text-slate-500 mb-1 uppercase">
+            Component Markup (HTML)
+          </label>
+          <textarea
+            id="component_content"
+            rows={10}
+            value={componentContent}
+            onChange={(event) => setComponentContent(event.target.value)}
+            placeholder="Paste the lab HTML/markup here. Use ATTEMPT_TOKEN where the attempt token should appear."
+            className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs font-mono"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={isSubmitting}
@@ -316,6 +392,9 @@ export default function CreateSimulationForm({
               setHintsInput('');
               setErrorMessage('');
               setSuccessMessage('');
+              setComponentFileName('simulation.html');
+              setComponentLanguage('html');
+              setComponentContent('');
               onCancelEdit?.();
             }}
             className="w-full bg-slate-900 border border-slate-700 text-slate-300 font-bold py-2 rounded hover:bg-slate-800"
