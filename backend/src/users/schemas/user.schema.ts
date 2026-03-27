@@ -24,7 +24,10 @@ export class User extends Document {
   @Prop({ type: [Types.ObjectId], ref: 'Simulation', default: [] })
   completed_simulations: Types.ObjectId[];
 
-  @Prop({ default: 'BEGINNER', enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'] })
+  @Prop({
+    default: 'BEGINNER',
+    enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'],
+  })
   badge: string;
 }
 

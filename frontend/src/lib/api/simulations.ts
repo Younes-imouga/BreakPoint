@@ -1,4 +1,5 @@
 import { get, post, patch, remove } from './api';
+import type { AttemptDto } from './attempts';
 
 export interface SimulationDto {
 	_id: string;
@@ -90,7 +91,7 @@ export const simulationsApi = {
 	},
 
 	start(id: string) {
-		return post<Record<string, unknown>>(`/simulations/${id}/start`);
+		return post<AttemptDto>(`/simulations/${id}/start`);
 	},
 
 	getAttempts(simulationId: string) {

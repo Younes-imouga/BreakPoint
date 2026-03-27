@@ -50,28 +50,28 @@ export default function AdminSidebar() {
           <span>[👤]</span> Profile
         </a>
         <a
-          href="#"
-          className={navItemClass(false)}
+          href="/admin/users"
+          className={navItemClass(pathname === '/admin/users')}
         >
-          <span>[👥]</span> Manage Users
+          <span>[👥]</span> User Management
         </a>
         <a
-          href="#"
-          className={navItemClass(false)}
+          href="/admin/submissions"
+          className={navItemClass(pathname === '/admin/submissions')}
         >
-          <span>[⚙]</span> System Settings
+          <span>[✓]</span> Token Submissions
         </a>
         <a
-          href="#"
-          className={navItemClass(false)}
+          href="/admin/progress"
+          className={navItemClass(pathname === '/admin/progress')}
         >
-          <span>[📊]</span> Analytics
+          <span>[📊]</span> Participant Progress
         </a>
         <a
-          href="#"
-          className={navItemClass(false)}
+          href="/admin/activity"
+          className={navItemClass(pathname === '/admin/activity')}
         >
-          <span>[⚠]</span> Security Log
+          <span>[⚡]</span> Platform Activity
         </a>
       </nav>
       <div className="pt-6 border-t border-slate-800 mt-24 my-4">

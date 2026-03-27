@@ -115,7 +115,7 @@ export default function SimulationDetailPage() {
     setIsStartingAttempt(true);
 
     try {
-      const createdAttempt = (await simulationsApi.start(simulationId)) as AttemptDto;
+      const createdAttempt = await simulationsApi.start(simulationId);
       setActiveAttempt(createdAttempt);
       setHintsRemaining(Math.max(0, 3 - (createdAttempt.hints_used ?? 0)));
       setCurrentHint(null);

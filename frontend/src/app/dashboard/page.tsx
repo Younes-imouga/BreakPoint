@@ -17,6 +17,13 @@ function safePercent(value: number) {
   return Number.isFinite(value) ? `${value.toFixed(0)}%` : '0%';
 }
 
+function getNextBadgeTarget(exp: number) {
+  if (exp < 200) return { label: 'INTERMEDIATE', target: 200 };
+  if (exp < 500) return { label: 'ADVANCED', target: 500 };
+  if (exp < 1000) return { label: 'EXPERT', target: 1000 };
+  return { label: 'MAX', target: exp };
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -98,6 +105,33 @@ export default function DashboardPage() {
   }, [attempts]);
 
   const primaryActiveAttempt = activeAttempts[0] ?? null;
+
+  const completionPercent = useMemo(() => {
+    if (totalLabs <= 0) return 0;
+    return ((stats?.completed_labs ?? 0) / totalLabs) * 100;
+  }, [stats?.completed_labs, totalLabs]);
+
+  const badgeProgress = useMemo(() => {
+    const currentExp = stats?.exp ?? 0;
+    const next = getNextBadgeTarget(currentExp);
+    if (next.label === 'MAX') {
+      return {
+        nextLabel: 'MAX',
+        remaining: 0,
+        progressPercent: 100,
+      };
+    }
+
+    const previousTarget = next.target === 200 ? 0 : next.target === 500 ? 200 : 500;
+    const range = Math.max(1, next.target - previousTarget);
+    const progress = Math.min(100, Math.max(0, ((currentExp - previousTarget) / range) * 100));
+
+    return {
+      nextLabel: next.label,
+      remaining: Math.max(0, next.target - currentExp),
+      progressPercent: progress,
+    };
+  }, [stats?.exp]);
 
   async function handleQuickSubmit(token: string) {
     setSubmissionStatus('');
@@ -234,6 +268,72 @@ export default function DashboardPage() {
                 <div className="text-2xl font-bold text-slate-200 mt-1">
                   {isLoading ? '...' : dashboardMetrics.totalHintsUsed}
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="mb-12 grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2 rounded border border-slate-800 bg-slate-900/60 p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-cyan-300">
+                  Progress Overview
+                </h3>
+                <span className="text-[11px] text-slate-500">BP-43 Dashboard</span>
+              </div>
+
+              <div className="mb-5">
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-slate-400 uppercase">Lab Completion</span>
+                  <span className="text-cyan-300 font-semibold">
+                    {stats?.completed_labs ?? 0} / {totalLabs || 0}
+                  </span>
+                </div>
+                <div className="h-2 rounded bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full bg-cyan-500 transition-all"
+                    style={{ width: `${Math.min(100, Math.max(0, completionPercent))}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-slate-400 uppercase">Badge Progress</span>
+                  <span className="text-emerald-300 font-semibold">
+                    {badgeProgress.nextLabel === 'MAX'
+                      ? 'Maximum badge reached'
+                      : `${badgeProgress.remaining} XP to ${badgeProgress.nextLabel}`}
+                  </span>
+                </div>
+                <div className="h-2 rounded bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 transition-all"
+                    style={{ width: `${badgeProgress.progressPercent}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded border border-slate-800 bg-slate-900/60 p-5">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-cyan-300 mb-3">
+                Completed Labs
+              </h3>
+              <div className="space-y-2 max-h-56 overflow-auto pr-1">
+                {(stats?.completed_simulations ?? []).slice(0, 8).map((lab) => (
+                  <div key={lab._id} className="rounded border border-slate-800 bg-slate-950/70 px-3 py-2">
+                    <div className="text-xs text-cyan-300 font-semibold uppercase tracking-wide">
+                      {lab.name}
+                    </div>
+                    <div className="mt-1 text-[11px] text-slate-500 flex justify-between">
+                      <span>{lab.difficulty}</span>
+                      <span className="text-emerald-400">+{lab.score} XP</span>
+                    </div>
+                  </div>
+                ))}
+
+                {!isLoading && (stats?.completed_simulations?.length ?? 0) === 0 ? (
+                  <div className="text-xs text-slate-500">No completed labs yet.</div>
+                ) : null}
               </div>
             </div>
           </section>

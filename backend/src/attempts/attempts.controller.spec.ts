@@ -62,7 +62,10 @@ describe('AttemptsController (Unit Tests)', () => {
 
       const result = await controller.create(mockRequest as any, dto);
 
-      expect(mockAttemptsService.createAttempt).toHaveBeenCalledWith('507f1f77bcf86cd799439012', dto);
+      expect(mockAttemptsService.createAttempt).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+        dto,
+      );
       expect(result).toEqual(mockAttempt);
     });
 
@@ -84,8 +87,12 @@ describe('AttemptsController (Unit Tests)', () => {
 
       const result = await controller.findOne('507f1f77bcf86cd799439013');
 
-      expect(mockAttemptsService.getAttemptById).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
-      expect(mockAttemptsService.sanitizeAttempt).toHaveBeenCalledWith(mockAttempt);
+      expect(mockAttemptsService.getAttemptById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
+      expect(mockAttemptsService.sanitizeAttempt).toHaveBeenCalledWith(
+        mockAttempt,
+      );
       expect(result).toEqual(sanitized);
     });
   });
@@ -97,7 +104,9 @@ describe('AttemptsController (Unit Tests)', () => {
 
       const result = await controller.getHints('507f1f77bcf86cd799439013');
 
-      expect(mockAttemptsService.getHintForAttempt).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
+      expect(mockAttemptsService.getHintForAttempt).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
       expect(result).toEqual(hintsResult);
     });
   });
@@ -109,7 +118,9 @@ describe('AttemptsController (Unit Tests)', () => {
 
       const result = await controller.findByUser('507f1f77bcf86cd799439012');
 
-      expect(mockAttemptsService.getAttemptsByUser).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
+      expect(mockAttemptsService.getAttemptsByUser).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+      );
       expect(result).toEqual(userAttempts);
     });
   });
@@ -117,9 +128,13 @@ describe('AttemptsController (Unit Tests)', () => {
   describe('findBySimulation', () => {
     it('should return attempts for a simulation (admin only)', async () => {
       const simAttempts = [{ ...mockAttempt }];
-      mockAttemptsService.getAttemptsBySimulation.mockResolvedValue(simAttempts);
+      mockAttemptsService.getAttemptsBySimulation.mockResolvedValue(
+        simAttempts,
+      );
 
-      const result = await controller.findBySimulation('507f1f77bcf86cd799439011');
+      const result = await controller.findBySimulation(
+        '507f1f77bcf86cd799439011',
+      );
 
       expect(mockAttemptsService.getAttemptsBySimulation).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
@@ -131,12 +146,19 @@ describe('AttemptsController (Unit Tests)', () => {
   describe('addEntry', () => {
     it('should add an entry to an attempt', async () => {
       const dto: AddAttemptEntryDto = { entry: 'some_entry', hintsUsed: 1 };
-      const updated = { ...mockAttempt, attempts: ['some_entry'], hints_used: 1 };
+      const updated = {
+        ...mockAttempt,
+        attempts: ['some_entry'],
+        hints_used: 1,
+      };
       mockAttemptsService.addEntry.mockResolvedValue(updated);
 
       const result = await controller.addEntry('507f1f77bcf86cd799439013', dto);
 
-      expect(mockAttemptsService.addEntry).toHaveBeenCalledWith('507f1f77bcf86cd799439013', dto);
+      expect(mockAttemptsService.addEntry).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+        dto,
+      );
       expect(result).toEqual(updated);
     });
   });
@@ -166,7 +188,9 @@ describe('AttemptsController (Unit Tests)', () => {
       };
       mockAttemptsService.submitToken.mockResolvedValue(submitResult);
 
-      const result = await controller.submit('507f1f77bcf86cd799439013', { token: 'ABC123DEF456' });
+      const result = await controller.submit('507f1f77bcf86cd799439013', {
+        token: 'ABC123DEF456',
+      });
 
       expect(mockAttemptsService.submitToken).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439013',
@@ -185,7 +209,9 @@ describe('AttemptsController (Unit Tests)', () => {
 
       const result = await controller.getHint(mockRequest as any);
 
-      expect(mockAttemptsService.getHintForUser).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
+      expect(mockAttemptsService.getHintForUser).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+      );
       expect(result).toEqual(hintResult);
     });
 
@@ -208,7 +234,9 @@ describe('AttemptsController (Unit Tests)', () => {
 
       const response = await controller.giveUp('507f1f77bcf86cd799439013');
 
-      expect(mockAttemptsService.giveUp).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
+      expect(mockAttemptsService.giveUp).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
       expect(response).toEqual(result);
     });
   });
@@ -219,7 +247,9 @@ describe('AttemptsController (Unit Tests)', () => {
 
       const result = await controller.remove('507f1f77bcf86cd799439013');
 
-      expect(mockAttemptsService.deleteAttempt).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
+      expect(mockAttemptsService.deleteAttempt).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
       expect(result).toEqual({ deleted: true });
     });
   });

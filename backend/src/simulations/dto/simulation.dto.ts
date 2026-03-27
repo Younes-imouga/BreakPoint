@@ -1,82 +1,101 @@
 import {
-    IsString,
-    IsNotEmpty,
-    IsOptional,
-    IsNumber,
-    IsEnum,
-    IsArray,
-    IsObject,
-    ValidateNested,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+  IsArray,
+  IsObject,
+  ValidateNested,
 } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 class SimulationComponentDto {
-    @IsString()
-    @IsNotEmpty()
-    fileName: string;
+  @ApiProperty({ example: 'index.html' })
+  @IsString()
+  @IsNotEmpty()
+  fileName: string;
 
-    @IsString()
-    @IsOptional()
-    language?: string;
+  @ApiPropertyOptional({ example: 'html' })
+  @IsString()
+  @IsOptional()
+  language?: string;
 
-    @IsString()
-    @IsNotEmpty()
-    content: string;
+  @ApiProperty({ example: '<h1>Vulnerable page</h1>' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 }
 
 export class SimulationDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @ApiProperty({ example: 'XSS Basic' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsString()
-    @IsOptional()
-    slug?: string;
+  @ApiPropertyOptional({ example: 'xss-basic' })
+  @IsString()
+  @IsOptional()
+  slug?: string;
 
-    @IsString()
-    @IsOptional()
-    token?: string;
+  @ApiPropertyOptional({ example: 'BP{sample_token}' })
+  @IsString()
+  @IsOptional()
+  token?: string;
 
-    @IsString()
-    @IsNotEmpty()
-    description: string;
+  @ApiProperty({ example: 'Find reflected XSS and obtain token' })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @IsEnum(['Easy', 'Normal', 'Hard', 'Insane'])
-    difficulty: string;
+  @ApiProperty({ enum: ['Easy', 'Normal', 'Hard', 'Insane'], example: 'Easy' })
+  @IsString()
+  @IsNotEmpty()
+  @IsEnum(['Easy', 'Normal', 'Hard', 'Insane'])
+  difficulty: string;
 
-    @IsNumber()
-    @IsOptional()
-    token_count?: number;
+  @ApiPropertyOptional({ example: 1 })
+  @IsNumber()
+  @IsOptional()
+  token_count?: number;
 
-    @IsNumber()
-    @IsOptional()
-    minimum_exp?: number;
+  @ApiPropertyOptional({ example: 0 })
+  @IsNumber()
+  @IsOptional()
+  minimum_exp?: number;
 
-    @IsString()
-    @IsOptional()
-    @IsEnum(['Active', 'Locked'])
-    status?: string;
+  @ApiPropertyOptional({ enum: ['Active', 'Locked'], example: 'Active' })
+  @IsString()
+  @IsOptional()
+  @IsEnum(['Active', 'Locked'])
+  status?: string;
 
-    @IsArray()
-    @IsOptional()
-    hint?: string[];
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['Try inspecting page source'],
+  })
+  @IsArray()
+  @IsOptional()
+  hint?: string[];
 
-    @IsNumber()
-    @IsOptional()
-    score?: number;
+  @ApiPropertyOptional({ example: 100 })
+  @IsNumber()
+  @IsOptional()
+  score?: number;
 
-    @IsObject()
-    @IsOptional()
-    metadata?: Record<string, unknown>;
+  @ApiPropertyOptional({ type: Object })
+  @IsObject()
+  @IsOptional()
+  metadata?: Record<string, unknown>;
 
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => SimulationComponentDto)
-    @IsOptional()
-    components?: SimulationComponentDto[];
+  @ApiPropertyOptional({ type: [SimulationComponentDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SimulationComponentDto)
+  @IsOptional()
+  components?: SimulationComponentDto[];
 }
 
-export class UpdateSimulationDto extends PartialType(SimulationDto) { }
+export class UpdateSimulationDto extends PartialType(SimulationDto) {}

@@ -15,8 +15,9 @@ export class AttemptComponentSnapshot {
   content: string;
 }
 
-export const AttemptComponentSnapshotSchema =
-  SchemaFactory.createForClass(AttemptComponentSnapshot);
+export const AttemptComponentSnapshotSchema = SchemaFactory.createForClass(
+  AttemptComponentSnapshot,
+);
 
 @Schema({ timestamps: true })
 export class Attempt extends Document {

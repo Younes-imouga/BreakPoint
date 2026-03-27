@@ -122,7 +122,9 @@ export default function CreateSimulationForm({
 
       router.refresh();
     } catch (error: unknown) {
-      let message = 'Failed to create simulation.';
+      let message = isEditMode
+        ? 'Failed to edit simulation.'
+        : 'Failed to create simulation.';
 
       if (
         typeof error === 'object' &&
@@ -377,10 +379,10 @@ export default function CreateSimulationForm({
         >
           {isSubmitting
             ? isEditMode
-              ? 'UPDATING_SIMULATION...'
+              ? 'EDITING_SIMULATION...'
               : 'CREATING_SIMULATION...'
             : isEditMode
-              ? 'UPDATE_SIMULATION'
+              ? 'EDIT_SIMULATION'
               : 'CREATE_SIMULATION'}
         </button>
 

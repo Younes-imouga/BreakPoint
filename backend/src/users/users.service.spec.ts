@@ -134,7 +134,9 @@ describe('UserService (Unit Tests)', () => {
 
       const result = await service.getUserById('507f1f77bcf86cd799439011');
 
-      expect(mockUserModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockUser);
     });
 
@@ -161,7 +163,9 @@ describe('UserService (Unit Tests)', () => {
 
       const result = await service.getMyProfile('507f1f77bcf86cd799439011');
 
-      expect(mockUserModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockUser);
     });
 
@@ -191,7 +195,9 @@ describe('UserService (Unit Tests)', () => {
 
       await service.updateMyProfile('507f1f77bcf86cd799439011', updateDto);
 
-      expect(mockUserModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(mockUser.save).toHaveBeenCalled();
     });
 
@@ -267,7 +273,9 @@ describe('UserService (Unit Tests)', () => {
 
       const result = await service.deleteMyAccount('507f1f77bcf86cd799439011');
 
-      expect(mockUserModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserModel.findByIdAndDelete).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result.message).toContain('deleted');
     });
   });
@@ -339,7 +347,10 @@ describe('UserService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(updatedUserDoc),
       });
 
-      const result = await service.updateUser('507f1f77bcf86cd799439011', updateDto);
+      const result = await service.updateUser(
+        '507f1f77bcf86cd799439011',
+        updateDto,
+      );
 
       expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
@@ -368,7 +379,9 @@ describe('UserService (Unit Tests)', () => {
 
       const result = await service.deleteUser('507f1f77bcf86cd799439011');
 
-      expect(mockUserModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserModel.findByIdAndDelete).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result.message).toContain('deleted');
     });
 
@@ -403,7 +416,10 @@ describe('UserService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(adminUser),
       });
 
-      const result = await service.changeRole('507f1f77bcf86cd799439011', 'ADMIN');
+      const result = await service.changeRole(
+        '507f1f77bcf86cd799439011',
+        'ADMIN',
+      );
 
       expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
@@ -418,9 +434,9 @@ describe('UserService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.changeRole('invalid-id', 'ADMIN'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.changeRole('invalid-id', 'ADMIN')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -444,7 +460,9 @@ describe('UserService (Unit Tests)', () => {
         100,
       );
 
-      expect(mockUserModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(userWithProgress.save).toHaveBeenCalled();
     });
 
@@ -474,7 +492,11 @@ describe('UserService (Unit Tests)', () => {
       });
 
       await expect(
-        service.updateUserProgress('invalid-id', '507f1f77bcf86cd799439012', 50),
+        service.updateUserProgress(
+          'invalid-id',
+          '507f1f77bcf86cd799439012',
+          50,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -491,7 +513,9 @@ describe('UserService (Unit Tests)', () => {
 
       const result = await service.getUserStats('507f1f77bcf86cd799439011');
 
-      expect(mockUserModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
     });
 
     it('should throw NotFoundException if user not found', async () => {
@@ -524,7 +548,7 @@ describe('UserService (Unit Tests)', () => {
 
       const result = await service.getLeaderboard(10);
 
-      expect(mockUserModel.find).toHaveBeenCalledWith();
+      expect(mockUserModel.find).toHaveBeenCalledWith({ role: 'PARTICIPANT' });
     });
   });
 

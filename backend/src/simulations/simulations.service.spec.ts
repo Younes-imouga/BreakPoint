@@ -104,7 +104,9 @@ describe('SimulationsService (Unit Tests)', () => {
 
       await service.getSimulations(1, 20, { difficulty: 'Easy' });
 
-      expect(mockSimulationModel.find).toHaveBeenCalledWith({ difficulty: 'Easy' });
+      expect(mockSimulationModel.find).toHaveBeenCalledWith({
+        difficulty: 'Easy',
+      });
     });
   });
 
@@ -112,9 +114,13 @@ describe('SimulationsService (Unit Tests)', () => {
     it('should return a simulation by id', async () => {
       mockSimulationModel.findById.mockResolvedValue(mockSimulation);
 
-      const result = await service.getSimulationById('507f1f77bcf86cd799439011');
+      const result = await service.getSimulationById(
+        '507f1f77bcf86cd799439011',
+      );
 
-      expect(mockSimulationModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockSimulationModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockSimulation);
     });
 
@@ -145,7 +151,10 @@ describe('SimulationsService (Unit Tests)', () => {
       });
       mockSimulationModel.create.mockResolvedValue(mockSimulation);
 
-      const result = await service.createSimulation('507f1f77bcf86cd799439012', simulationDto);
+      const result = await service.createSimulation(
+        '507f1f77bcf86cd799439012',
+        simulationDto,
+      );
 
       expect(mockSimulationModel.create).toHaveBeenCalled();
       expect(result).toEqual(mockSimulation);
@@ -214,9 +223,14 @@ describe('SimulationsService (Unit Tests)', () => {
       };
 
       const updatedSimulation = { ...mockSimulation, ...updateDto };
-      mockSimulationModel.findByIdAndUpdate.mockResolvedValue(updatedSimulation);
+      mockSimulationModel.findByIdAndUpdate.mockResolvedValue(
+        updatedSimulation,
+      );
 
-      const result = await service.updateSimulation('507f1f77bcf86cd799439011', updateDto);
+      const result = await service.updateSimulation(
+        '507f1f77bcf86cd799439011',
+        updateDto,
+      );
 
       expect(mockSimulationModel.findByIdAndUpdate).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
@@ -246,7 +260,9 @@ describe('SimulationsService (Unit Tests)', () => {
 
       const result = await service.deleteSimulation('507f1f77bcf86cd799439011');
 
-      expect(mockSimulationModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockSimulationModel.findByIdAndDelete).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockSimulation);
     });
   });
@@ -267,9 +283,13 @@ describe('SimulationsService (Unit Tests)', () => {
         }),
       });
 
-      const result = await service.getSimulationAttempts('507f1f77bcf86cd799439011');
+      const result = await service.getSimulationAttempts(
+        '507f1f77bcf86cd799439011',
+      );
 
-      expect(mockSimulationModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockSimulationModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(mockAttemptModel.find).toHaveBeenCalledWith({
         simulation_id: expect.any(Types.ObjectId),
       });

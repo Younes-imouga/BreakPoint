@@ -4,7 +4,10 @@ import { AttemptsController } from './attempts.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Attempt, AttemptSchema } from './schemas/attempt.schema';
 import { AttemptsOwnerGuard } from '../guards/attempts-owner.guard';
-import { Simulation, SimulationSchema } from '../simulations/schemas/simulation.schema';
+import {
+  Simulation,
+  SimulationSchema,
+} from '../simulations/schemas/simulation.schema';
 import { UsersModule } from '../users/users.module';
 
 @Module({

@@ -1,4 +1,4 @@
-import { get, post, patch, remove } from "./api";
+import { get, patch, remove } from "./api";
 
 /* ================= TYPES ================= */
 
@@ -44,6 +44,16 @@ export interface UserStats {
   }>;
 }
 
+export interface LeaderboardEntry {
+  _id: string;
+  name: string;
+  role?: Role;
+  total_score: number;
+  exp: number;
+  badge: string;
+  completed_labs: number;
+}
+
 /* ================= API ================= */
 
 export function getUsers(page = 1, limit = 20) {
@@ -86,6 +96,6 @@ export function getMyAttempts() {
   return get<unknown[]>("/users/me/attempts");
 }
 
-export function getLeaderboard() {
-  return get<User[]>("/users/leaderboard/top");
+export function getLeaderboard(limit = 50) {
+  return get<LeaderboardEntry[]>(`/users/leaderboard/top?limit=${limit}`);
 }

@@ -1,12 +1,21 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function UserSidebar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { logout, user } = useAuth();
+
+  const navItemClass = (active: boolean) =>
+    `flex items-center gap-3 p-3 rounded transition ${active
+      ? 'bg-slate-800 text-cyan-400 border-l-2 border-cyan-400'
+      : 'hover:bg-slate-800'
+    }`;
 
   const handleLogout = () => {
     logout();
@@ -22,42 +31,42 @@ export default function UserSidebar() {
       </div>
 
       <nav className="flex-1 space-y-2">
-        <a
+        <Link
           href="/dashboard"
-          className="flex items-center gap-3 p-3 hover:bg-slate-800 rounded transition"
+          className={navItemClass(pathname === '/dashboard')}
         >
           <span>[■]</span> Dashboard
-        </a>
-        <a
+        </Link>
+        <Link
           href="/simulations"
-          className="flex items-center gap-3 p-3 hover:bg-slate-800 rounded transition"
+          className={navItemClass(pathname.startsWith('/simulations'))}
         >
           <span>[::]</span> All Labs
-        </a>
-        <a
+        </Link>
+        <Link
           href="/attempts"
-          className="flex items-center gap-3 p-3 hover:bg-slate-800 rounded transition"
+          className={navItemClass(pathname.startsWith('/attempts'))}
         >
           <span>[📋]</span> Attempts
-        </a>
-        <a
+        </Link>
+        <Link
           href="/profile"
-          className="flex items-center gap-3 p-3 hover:bg-slate-800 rounded transition"
+          className={navItemClass(pathname.startsWith('/profile'))}
         >
           <span>[👤]</span> Profile
-        </a>
-        <a
-          href="#"
-          className="flex items-center gap-3 p-3 hover:bg-slate-800 rounded transition"
+        </Link>
+        <Link
+          href="/leaderboard"
+          className={navItemClass(pathname.startsWith('/leaderboard'))}
         >
           <span>[▲]</span> Leaderboard
-        </a>
-        <a
-          href="#"
-          className="flex items-center gap-3 p-3 hover:bg-slate-800 rounded transition"
+        </Link>
+        <Link
+          href="/documentation"
+          className={navItemClass(pathname.startsWith('/documentation'))}
         >
           <span>[?]</span> Documentation
-        </a>
+        </Link>
       </nav>
 
       <div className="mt-auto pt-6 border-t border-slate-800">

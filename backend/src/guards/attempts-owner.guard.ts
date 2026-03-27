@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  ForbiddenException,
+} from '@nestjs/common';
 import { AttemptsService } from '../attempts/attempts.service';
 
 @Injectable()
@@ -14,7 +19,8 @@ export class AttemptsOwnerGuard implements CanActivate {
     }
 
     // Expect attempt id in URL params (common pattern for these routes)
-    const attemptId = request.params?.id ?? request.body?.attemptId ?? request.body?.id;
+    const attemptId =
+      request.params?.id ?? request.body?.attemptId ?? request.body?.id;
 
     if (!attemptId) {
       throw new ForbiddenException('Missing attempt id for ownership check');

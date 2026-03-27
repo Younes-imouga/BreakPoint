@@ -108,7 +108,9 @@ describe('UserController (Unit Tests)', () => {
 
       const result = await controller.getMyProfile(mockRequest as any);
 
-      expect(mockUserService.getMyProfile).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserService.getMyProfile).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockUser);
     });
 
@@ -133,7 +135,10 @@ describe('UserController (Unit Tests)', () => {
 
       const mockRequest = { user: { id: '507f1f77bcf86cd799439011' } };
 
-      const result = await controller.updateMyProfile(mockRequest as any, updateDto);
+      const result = await controller.updateMyProfile(
+        mockRequest as any,
+        updateDto,
+      );
 
       expect(mockUserService.updateMyProfile).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
@@ -154,7 +159,9 @@ describe('UserController (Unit Tests)', () => {
 
   describe('deleteMyAccount', () => {
     it('should delete user account', async () => {
-      mockUserService.deleteMyAccount.mockResolvedValue({ message: 'User deleted' });
+      mockUserService.deleteMyAccount.mockResolvedValue({
+        message: 'User deleted',
+      });
 
       const mockRequest = { user: { id: '507f1f77bcf86cd799439011' } };
 
@@ -169,9 +176,9 @@ describe('UserController (Unit Tests)', () => {
     it('should throw BadRequestException if user id is missing', async () => {
       const mockRequest = { user: {}, header: () => undefined };
 
-      await expect(controller.deleteMyAccount(mockRequest as any)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.deleteMyAccount(mockRequest as any),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -183,7 +190,9 @@ describe('UserController (Unit Tests)', () => {
 
       const result = await controller.getMyStats(mockRequest as any);
 
-      expect(mockUserService.getUserStats).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserService.getUserStats).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockStats);
     });
 
@@ -213,9 +222,9 @@ describe('UserController (Unit Tests)', () => {
     it('should throw BadRequestException if user id is missing', async () => {
       const mockRequest = { user: {}, header: () => undefined };
 
-      await expect(controller.getMyAttempts(mockRequest as any)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.getMyAttempts(mockRequest as any),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -241,9 +250,15 @@ describe('UserController (Unit Tests)', () => {
   describe('updateUser', () => {
     it('should update a user (admin only)', async () => {
       const updateDto = { role: 'ADMIN' };
-      mockUserService.updateUser.mockResolvedValue({ ...mockUser, role: 'ADMIN' });
+      mockUserService.updateUser.mockResolvedValue({
+        ...mockUser,
+        role: 'ADMIN',
+      });
 
-      const result = await controller.updateUser('507f1f77bcf86cd799439011', updateDto);
+      const result = await controller.updateUser(
+        '507f1f77bcf86cd799439011',
+        updateDto,
+      );
 
       expect(mockUserService.updateUser).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
@@ -259,7 +274,9 @@ describe('UserController (Unit Tests)', () => {
 
       const result = await controller.deleteUser('507f1f77bcf86cd799439011');
 
-      expect(mockUserService.deleteUser).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserService.deleteUser).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result.message).toContain('delete');
     });
   });
@@ -267,7 +284,10 @@ describe('UserController (Unit Tests)', () => {
   describe('changeUserRole', () => {
     it('should change user role (admin only)', async () => {
       const updateRoleDto: UpdateRoleDto = { role: 'ADMIN' };
-      mockUserService.changeRole.mockResolvedValue({ ...mockUser, role: 'ADMIN' });
+      mockUserService.changeRole.mockResolvedValue({
+        ...mockUser,
+        role: 'ADMIN',
+      });
 
       const result = await controller.changeUserRole(
         '507f1f77bcf86cd799439011',
@@ -288,7 +308,9 @@ describe('UserController (Unit Tests)', () => {
 
       const result = await controller.getUserById('507f1f77bcf86cd799439011');
 
-      expect(mockUserService.getUserById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserService.getUserById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockUser);
     });
   });
@@ -299,7 +321,9 @@ describe('UserController (Unit Tests)', () => {
 
       const result = await controller.getUserStats('507f1f77bcf86cd799439011');
 
-      expect(mockUserService.getUserStats).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockUserService.getUserStats).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(mockStats);
     });
   });
@@ -308,7 +332,9 @@ describe('UserController (Unit Tests)', () => {
     it('should return attempts for a user (admin only)', async () => {
       mockAttemptsService.getAttemptsByUser.mockResolvedValue(mockAttempts);
 
-      const result = await controller.getUserAttempts('507f1f77bcf86cd799439011');
+      const result = await controller.getUserAttempts(
+        '507f1f77bcf86cd799439011',
+      );
 
       expect(mockAttemptsService.getAttemptsByUser).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',

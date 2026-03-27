@@ -9,6 +9,16 @@ import { simulationsApi } from '@/lib/api/simulations';
 
 type AttemptFilter = 'All Attempts' | 'Successful' | 'Failed' | 'In Progress';
 
+type LabAttemptSummary = {
+  simulationId: string;
+  simulationName: string;
+  total: number;
+  successful: number;
+  failed: number;
+  inProgress: number;
+  bestScore: number;
+};
+
 function toStatus(success: boolean | null): 'success' | 'failed' | 'in-progress' {
   if (success === true) return 'success';
   if (success === false) return 'failed';
@@ -121,6 +131,40 @@ export default function AttemptsPage() {
     });
   }, [attempts, activeFilter]);
 
+  const attemptsByLab = useMemo<LabAttemptSummary[]>(() => {
+    const summaryMap = new Map<string, LabAttemptSummary>();
+
+    for (const attempt of attempts) {
+      const simulationId = attempt.simulation_id;
+      const simulationName =
+        simulationNames[simulationId] ?? `Simulation ${shortId(simulationId)}`;
+
+      const current = summaryMap.get(simulationId) ?? {
+        simulationId,
+        simulationName,
+        total: 0,
+        successful: 0,
+        failed: 0,
+        inProgress: 0,
+        bestScore: 0,
+      };
+
+      current.total += 1;
+      if (attempt.success === true) current.successful += 1;
+      if (attempt.success === false) current.failed += 1;
+      if (attempt.success === null) current.inProgress += 1;
+
+      const candidateScore = attempt.final_score ?? 0;
+      if (candidateScore > current.bestScore) {
+        current.bestScore = candidateScore;
+      }
+
+      summaryMap.set(simulationId, current);
+    }
+
+    return Array.from(summaryMap.values()).sort((a, b) => b.total - a.total);
+  }, [attempts, simulationNames]);
+
   return (
     <div className="bg-slate-950 text-slate-300 min-h-screen flex">
       <UserSidebar />
@@ -151,6 +195,48 @@ export default function AttemptsPage() {
               {errorMessage}
             </section>
           ) : null}
+
+          <section className="mb-8 rounded border border-slate-800 bg-slate-900/40 overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase text-cyan-300 tracking-wide">
+                Attempts Per Lab
+              </h3>
+              <span className="text-[11px] text-slate-500">BP-40 Tracking</span>
+            </div>
+
+            {isLoading ? (
+              <div className="p-4 text-sm text-slate-500">Loading lab attempt summaries...</div>
+            ) : attemptsByLab.length === 0 ? (
+              <div className="p-4 text-sm text-slate-500">No attempts available yet.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-900/70 text-slate-400 text-[11px] uppercase tracking-wide">
+                      <th className="text-left px-4 py-3">Lab</th>
+                      <th className="text-left px-4 py-3">Total</th>
+                      <th className="text-left px-4 py-3">Success</th>
+                      <th className="text-left px-4 py-3">Failed</th>
+                      <th className="text-left px-4 py-3">In Progress</th>
+                      <th className="text-left px-4 py-3">Best Score</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {attemptsByLab.map((lab) => (
+                      <tr key={lab.simulationId} className="hover:bg-slate-800/20">
+                        <td className="px-4 py-3 text-cyan-300 font-semibold">{lab.simulationName}</td>
+                        <td className="px-4 py-3">{lab.total}</td>
+                        <td className="px-4 py-3 text-emerald-400">{lab.successful}</td>
+                        <td className="px-4 py-3 text-red-400">{lab.failed}</td>
+                        <td className="px-4 py-3 text-amber-300">{lab.inProgress}</td>
+                        <td className="px-4 py-3 text-cyan-400 font-semibold">{lab.bestScore} XP</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
 
           {/* Attempts List */}
           <section className="space-y-4">

@@ -74,10 +74,14 @@ describe('SimulationsController (Unit Tests)', () => {
 
       const result = await controller.findAll();
 
-      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(1, 20, {
-        difficulty: undefined,
-        status: undefined,
-      });
+      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(
+        1,
+        20,
+        {
+          difficulty: undefined,
+          status: undefined,
+        },
+      );
       expect(result).toEqual(expectedResult);
     });
 
@@ -94,10 +98,14 @@ describe('SimulationsController (Unit Tests)', () => {
 
       const result = await controller.findAll('2', '10');
 
-      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(2, 10, {
-        difficulty: undefined,
-        status: undefined,
-      });
+      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(
+        2,
+        10,
+        {
+          difficulty: undefined,
+          status: undefined,
+        },
+      );
       expect(result.page).toBe(2);
       expect(result.limit).toBe(10);
     });
@@ -113,10 +121,14 @@ describe('SimulationsController (Unit Tests)', () => {
 
       await controller.findAll('1', '100');
 
-      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(1, 50, {
-        difficulty: undefined,
-        status: undefined,
-      });
+      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(
+        1,
+        50,
+        {
+          difficulty: undefined,
+          status: undefined,
+        },
+      );
     });
 
     it('should apply difficulty filter', async () => {
@@ -130,10 +142,14 @@ describe('SimulationsController (Unit Tests)', () => {
 
       await controller.findAll('1', '20', 'Easy');
 
-      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(1, 20, {
-        difficulty: 'Easy',
-        status: undefined,
-      });
+      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(
+        1,
+        20,
+        {
+          difficulty: 'Easy',
+          status: undefined,
+        },
+      );
     });
 
     it('should apply status filter', async () => {
@@ -147,16 +163,22 @@ describe('SimulationsController (Unit Tests)', () => {
 
       await controller.findAll('1', '20', undefined, 'Active');
 
-      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(1, 20, {
-        difficulty: undefined,
-        status: 'Active',
-      });
+      expect(mockSimulationsService.getSimulations).toHaveBeenCalledWith(
+        1,
+        20,
+        {
+          difficulty: undefined,
+          status: 'Active',
+        },
+      );
     });
   });
 
   describe('findOne', () => {
     it('should return a single simulation by id', async () => {
-      mockSimulationsService.getSimulationById.mockResolvedValue(mockSimulation);
+      mockSimulationsService.getSimulationById.mockResolvedValue(
+        mockSimulation,
+      );
 
       const result = await controller.findOne('507f1f77bcf86cd799439011');
 
@@ -243,7 +265,10 @@ describe('SimulationsController (Unit Tests)', () => {
         ...simulationDto,
       });
 
-      const result = await controller.update('507f1f77bcf86cd799439011', simulationDto);
+      const result = await controller.update(
+        '507f1f77bcf86cd799439011',
+        simulationDto,
+      );
 
       expect(mockSimulationsService.updateSimulation).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
@@ -277,8 +302,12 @@ describe('SimulationsController (Unit Tests)', () => {
         success: null,
       };
 
-      mockSimulationsService.getSimulationById.mockResolvedValue(mockSimulation);
-      mockAttemptsService.startSimulationAttempt.mockResolvedValue(attemptResult);
+      mockSimulationsService.getSimulationById.mockResolvedValue(
+        mockSimulation,
+      );
+      mockAttemptsService.startSimulationAttempt.mockResolvedValue(
+        attemptResult,
+      );
 
       const mockRequest = {
         user: { id: '507f1f77bcf86cd799439012' },
@@ -303,7 +332,10 @@ describe('SimulationsController (Unit Tests)', () => {
       const mockRequest = { user: {}, header: () => undefined };
 
       await expect(
-        controller.startSimulation('507f1f77bcf86cd799439011', mockRequest as any),
+        controller.startSimulation(
+          '507f1f77bcf86cd799439011',
+          mockRequest as any,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -322,7 +354,9 @@ describe('SimulationsController (Unit Tests)', () => {
 
       mockSimulationsService.getSimulationAttempts.mockResolvedValue(attempts);
 
-      const result = await controller.getSimulationAttempts('507f1f77bcf86cd799439011');
+      const result = await controller.getSimulationAttempts(
+        '507f1f77bcf86cd799439011',
+      );
 
       expect(mockSimulationsService.getSimulationAttempts).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',

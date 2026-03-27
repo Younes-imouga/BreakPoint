@@ -4,12 +4,26 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import type { UpdateQuery } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+
+type UserUpdatePayload = UpdateQuery<
+  Pick<
+    User,
+    | 'name'
+    | 'email'
+    | 'role'
+    | 'exp'
+    | 'total_score'
+    | 'badge'
+    | 'completed_simulations'
+  >
+>;
 
 @Injectable()
 export class UserService {
@@ -38,7 +52,10 @@ export class UserService {
   }
 
   async getMyProfile(userId: string) {
-    const user = await this.userModel.findById(userId).select('-password').exec();
+    const user = await this.userModel
+      .findById(userId)
+      .select('-password')
+      .exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -52,10 +69,12 @@ export class UserService {
     }
 
     if (dto.email && dto.email !== user.email) {
-      const existingUser = await this.userModel.findOne({
-        email: dto.email,
-        _id: { $ne: user._id },
-      }).exec();
+      const existingUser = await this.userModel
+        .findOne({
+          email: dto.email,
+          _id: { $ne: user._id },
+        })
+        .exec();
 
       if (existingUser) {
         throw new ConflictException('Email already in use');
@@ -74,7 +93,8 @@ export class UserService {
 
     await user.save();
 
-    const { password: _password, ...result } = user.toObject();
+    const result = user.toObject();
+    Reflect.deleteProperty(result, 'password');
     return result;
   }
 
@@ -84,7 +104,12 @@ export class UserService {
 
   async getAllUsers(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
-    const users = await this.userModel.find().select('-password').skip(skip).limit(limit).exec();
+    const users = await this.userModel
+      .find()
+      .select('-password')
+      .skip(skip)
+      .limit(limit)
+      .exec();
     const total = await this.userModel.countDocuments().exec();
     return {
       data: users,
@@ -95,14 +120,15 @@ export class UserService {
     };
   }
 
-  async updateUser(id: string, updateUserDto: any) {
+  async updateUser(id: string, updateUserDto: UserUpdatePayload) {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
       .exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const { password: _password, ...result } = user.toObject();
+    const result = user.toObject();
+    Reflect.deleteProperty(result, 'password');
     return result;
   }
 
@@ -121,17 +147,26 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const { password: _password, ...result } = user.toObject();
+    const result = user.toObject();
+    Reflect.deleteProperty(result, 'password');
     return result;
   }
 
-  async updateUserProgress(userId: string, simulationId: string, score: number) {
+  async updateUserProgress(
+    userId: string,
+    simulationId: string,
+    score: number,
+  ) {
     const user = await this.userModel.findById(userId).exec();
     if (!user) throw new NotFoundException('User not found');
 
     // Add simulation to completed list if not already there
-    if (!user.completed_simulations.includes(simulationId as any)) {
-      user.completed_simulations.push(simulationId as any);
+    const alreadyCompleted = user.completed_simulations.some(
+      (completedSimulationId) =>
+        completedSimulationId.toString() === simulationId,
+    );
+    if (!alreadyCompleted) {
+      user.completed_simulations.push(new Types.ObjectId(simulationId));
     }
 
     // Update score and exp
@@ -153,7 +188,7 @@ export class UserService {
       .select('-password')
       .populate('completed_simulations', 'name difficulty score')
       .exec();
-    
+
     if (!user) throw new NotFoundException('User not found');
 
     return {
@@ -168,11 +203,21 @@ export class UserService {
   }
 
   async getLeaderboard(limit: number = 10) {
-    return this.userModel
-      .find()
-      .select('name total_score exp badge')
+    const users = await this.userModel
+      .find({ role: 'PARTICIPANT' })
+      .select('name role total_score exp badge completed_simulations')
       .sort({ total_score: -1 })
       .limit(limit)
       .exec();
+
+    return users.map((user) => ({
+      _id: user._id,
+      name: user.name,
+      role: user.role,
+      total_score: user.total_score,
+      exp: user.exp,
+      badge: user.badge,
+      completed_labs: user.completed_simulations?.length ?? 0,
+    }));
   }
 }

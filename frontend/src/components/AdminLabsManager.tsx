@@ -28,9 +28,16 @@ export default function AdminLabsManager({
   const router = useRouter();
   const [selectedSimulation, setSelectedSimulation] = useState<SimulationDto | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const handleEdit = (simulation: SimulationDto) => {
-    setSelectedSimulation(simulation);
+  const handleEdit = async (simulation: SimulationDto) => {
+    try {
+      setEditingId(simulation._id);
+      const fullSimulation = await simulationsApi.getById(simulation._id);
+      setSelectedSimulation(fullSimulation);
+    } finally {
+      setEditingId(null);
+    }
   };
 
   const handleDelete = async (simulationId: string) => {
@@ -67,6 +74,7 @@ export default function AdminLabsManager({
         initialDifficulty={initialDifficulty}
         initialStatus={initialStatus}
         selectedSimulationId={selectedSimulation?._id}
+        editingId={editingId}
         deletingId={deletingId}
         onEdit={handleEdit}
         onDelete={handleDelete}

@@ -1,8 +1,17 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Attempt, AttemptDocument } from './schemas/attempt.schema';
-import { CreateAttemptDto, AddAttemptEntryDto, CompleteAttemptDto } from './dto/attempt.dto';
+import {
+  CreateAttemptDto,
+  AddAttemptEntryDto,
+  CompleteAttemptDto,
+} from './dto/attempt.dto';
 import { randomBytes } from 'crypto';
 import { Simulation } from '../simulations/schemas/simulation.schema';
 import { UserService } from '../users/users.service';
@@ -24,7 +33,10 @@ export class AttemptsService {
     let token = '';
 
     for (let i = 0; i < length; i++) {
-      token += AttemptsService.TOKEN_ALPHABET[bytes[i] % AttemptsService.TOKEN_ALPHABET.length];
+      token +=
+        AttemptsService.TOKEN_ALPHABET[
+          bytes[i] % AttemptsService.TOKEN_ALPHABET.length
+        ];
     }
 
     return token;
@@ -34,17 +46,25 @@ export class AttemptsService {
     // Retries are cheap and keep token generation deterministic at 12 chars.
     for (let i = 0; i < 10; i++) {
       const token = this.generateToken();
-      const exists = await this.attemptModel.findOne({ token }).select('_id').lean().exec();
+      const exists = await this.attemptModel
+        .findOne({ token })
+        .select('_id')
+        .lean()
+        .exec();
       if (!exists) {
         return token;
       }
     }
 
-    throw new ConflictException('Could not generate a unique token, please retry');
+    throw new ConflictException(
+      'Could not generate a unique token, please retry',
+    );
   }
 
   public sanitizeAttempt<T extends { toObject?: () => any }>(attempt: T): any {
-    return typeof attempt?.toObject === 'function' ? attempt.toObject() : attempt;
+    return typeof attempt?.toObject === 'function'
+      ? attempt.toObject()
+      : attempt;
   }
 
   public sanitizeAttempts(attempts: Array<{ toObject?: () => any }>): any[] {
@@ -63,7 +83,10 @@ export class AttemptsService {
     const simulationToken = simulation?.token;
 
     let componentContent: string = selectedComponent.content;
-    componentContent = componentContent.replace(/__ATTEMPT_TOKEN__|ATTEMPT_TOKEN/g, token);
+    componentContent = componentContent.replace(
+      /__ATTEMPT_TOKEN__|ATTEMPT_TOKEN/g,
+      token,
+    );
 
     if (typeof simulationToken === 'string' && simulationToken.length > 0) {
       componentContent = componentContent.split(simulationToken).join(token);
@@ -73,11 +96,13 @@ export class AttemptsService {
 
     return {
       fileName:
-        typeof selectedComponent.fileName === 'string' && selectedComponent.fileName.trim()
+        typeof selectedComponent.fileName === 'string' &&
+        selectedComponent.fileName.trim()
           ? selectedComponent.fileName
           : 'simulation.html',
       language:
-        typeof selectedComponent.language === 'string' && selectedComponent.language.trim()
+        typeof selectedComponent.language === 'string' &&
+        selectedComponent.language.trim()
           ? selectedComponent.language
           : 'html',
       content: componentContent,
@@ -99,7 +124,10 @@ export class AttemptsService {
       return;
     }
 
-    const snapshot = this.buildComponentSnapshotFromSimulation(simulation, attempt.token);
+    const snapshot = this.buildComponentSnapshotFromSimulation(
+      simulation,
+      attempt.token,
+    );
     if (!snapshot) {
       return;
     }
@@ -120,7 +148,9 @@ export class AttemptsService {
     }
 
     const token = await this.generateUniqueToken();
-    const normalizedSnapshot = this.buildComponentSnapshotFromSimulation(simulation as any, token) ??  null;
+    const normalizedSnapshot =
+      this.buildComponentSnapshotFromSimulation(simulation as any, token) ??
+      null;
     if (!normalizedSnapshot) {
       throw new BadRequestException('Simulation has no runnable component');
     }
@@ -146,7 +176,11 @@ export class AttemptsService {
 
     // Prevent creating if user has already successfully completed this simulation
     const completed = await this.attemptModel
-      .findOne({ user_id: userObjectId, simulation_id: simulationObjectId, success: true })
+      .findOne({
+        user_id: userObjectId,
+        simulation_id: simulationObjectId,
+        success: true,
+      })
       .select('_id')
       .lean()
       .exec();
@@ -163,7 +197,9 @@ export class AttemptsService {
       .exec();
 
     if (active) {
-      throw new ConflictException('You have an active attempt. Complete it before creating a new one');
+      throw new ConflictException(
+        'You have an active attempt. Complete it before creating a new one',
+      );
     }
 
     return this.createAndSaveAttempt(userId, dto.simulation_id);
@@ -175,7 +211,11 @@ export class AttemptsService {
 
     // Block starting if the simulation was already completed by this user
     const completed = await this.attemptModel
-      .findOne({ user_id: userObjectId, simulation_id: simulationObjectId, success: true })
+      .findOne({
+        user_id: userObjectId,
+        simulation_id: simulationObjectId,
+        success: true,
+      })
       .select('_id')
       .lean()
       .exec();
@@ -193,7 +233,9 @@ export class AttemptsService {
       .exec();
 
     if (existingAttempt) {
-      throw new BadRequestException('You already have an active attempt for this simulation');
+      throw new BadRequestException(
+        'You already have an active attempt for this simulation',
+      );
     }
 
     return this.createAndSaveAttempt(userId, simulationId);
@@ -207,14 +249,22 @@ export class AttemptsService {
   }
 
   async getAttemptsByUser(userId: string) {
-    const attempts = await this.attemptModel.find({ user_id: new Types.ObjectId(userId) }).exec();
-    await Promise.all(attempts.map((attempt) => this.ensureAttemptComponentSnapshot(attempt)));
+    const attempts = await this.attemptModel
+      .find({ user_id: new Types.ObjectId(userId) })
+      .exec();
+    await Promise.all(
+      attempts.map((attempt) => this.ensureAttemptComponentSnapshot(attempt)),
+    );
     return this.sanitizeAttempts(attempts);
   }
 
   async getAttemptsBySimulation(simulationId: string) {
-    const attempts = await this.attemptModel.find({ simulation_id: new Types.ObjectId(simulationId) }).exec();
-    await Promise.all(attempts.map((attempt) => this.ensureAttemptComponentSnapshot(attempt)));
+    const attempts = await this.attemptModel
+      .find({ simulation_id: new Types.ObjectId(simulationId) })
+      .exec();
+    await Promise.all(
+      attempts.map((attempt) => this.ensureAttemptComponentSnapshot(attempt)),
+    );
     return this.sanitizeAttempts(attempts);
   }
 
@@ -236,7 +286,8 @@ export class AttemptsService {
     if (!attempt) throw new NotFoundException('Attempt not found');
 
     if (typeof dto.success === 'boolean') attempt.success = dto.success;
-    if (typeof dto.final_score === 'number') attempt.final_score = dto.final_score;
+    if (typeof dto.final_score === 'number')
+      attempt.final_score = dto.final_score;
 
     await attempt.save();
     return this.sanitizeAttempt(attempt);
@@ -272,17 +323,19 @@ export class AttemptsService {
     // If match -> success
     if (isMatch) {
       attempt.success = true;
-      
+
       // Award points and update user progress
-      const simulation = await this.simulationModel.findById(attempt.simulation_id).exec();
+      const simulation = await this.simulationModel
+        .findById(attempt.simulation_id)
+        .exec();
       if (simulation) {
         attempt.final_score = simulation.score;
-        
+
         // Update user stats
         await this.userService.updateUserProgress(
           attempt.user_id.toString(),
           attempt.simulation_id.toString(),
-          simulation.score
+          simulation.score,
         );
       }
     } else {
@@ -309,10 +362,15 @@ export class AttemptsService {
 
   // Return next hint for the user's active attempt and increment hints_used
   async getHintForUser(userId: string) {
-    const attempt = await this.attemptModel.findOne({ user_id: new Types.ObjectId(userId), success: null }).exec();
-    if (!attempt) throw new NotFoundException('Active attempt not found for user');
+    const attempt = await this.attemptModel
+      .findOne({ user_id: new Types.ObjectId(userId), success: null })
+      .exec();
+    if (!attempt)
+      throw new NotFoundException('Active attempt not found for user');
 
-    const simulation = await this.simulationModel.findById(attempt.simulation_id).exec();
+    const simulation = await this.simulationModel
+      .findById(attempt.simulation_id)
+      .exec();
     if (!simulation) throw new NotFoundException('Simulation not found');
 
     const hints: string[] = (simulation as any).hint ?? [];
@@ -334,7 +392,9 @@ export class AttemptsService {
     const attempt = await this.attemptModel.findById(attemptId).exec();
     if (!attempt) throw new NotFoundException('Attempt not found');
 
-    const simulation = await this.simulationModel.findById(attempt.simulation_id).exec();
+    const simulation = await this.simulationModel
+      .findById(attempt.simulation_id)
+      .exec();
     if (!simulation) throw new NotFoundException('Simulation not found');
 
     const hints: string[] = (simulation as any).hint ?? [];
@@ -355,14 +415,17 @@ export class AttemptsService {
   async giveUp(attemptId: string) {
     const attempt = await this.attemptModel.findById(attemptId).exec();
     if (!attempt) throw new NotFoundException('Attempt not found');
-    
+
     if (attempt.success !== null) {
       throw new ConflictException('Attempt is already completed or failed');
     }
 
     attempt.success = false;
     await attempt.save();
-    
-    return { message: 'Attempt marked as given up', attempt: this.sanitizeAttempt(attempt) };
+
+    return {
+      message: 'Attempt marked as given up',
+      attempt: this.sanitizeAttempt(attempt),
+    };
   }
 }

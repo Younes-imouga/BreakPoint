@@ -13,7 +13,6 @@ import { AuthModule } from './auth/auth.module';
 import { SimulationsModule } from './simulations/simulations.module';
 import { AttemptsModule } from './attempts/attempts.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({

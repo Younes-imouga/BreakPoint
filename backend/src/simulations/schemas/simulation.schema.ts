@@ -22,18 +22,18 @@ export class Simulation extends Document {
   token_count: number;
 
   @Prop({ required: true, default: 0 })
-  minimum_exp: number
+  minimum_exp: number;
 
   @Prop({ required: true, enum: ['Active', 'Locked'], default: 'Locked' })
-  status: string
+  status: string;
 
-  @Prop() 
-  hint: string[]
+  @Prop()
+  hint: string[];
 
   @Prop({ required: true, default: 100 })
-  score: number
+  score: number;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: "User" })
+  @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
   createdBy: Types.ObjectId;
 
   @Prop({ type: Object, default: {} })

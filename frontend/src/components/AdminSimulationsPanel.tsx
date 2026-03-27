@@ -15,6 +15,7 @@ type AdminSimulationsPanelProps = {
   initialDifficulty?: string;
   initialStatus?: string;
   selectedSimulationId?: string | null;
+  editingId?: string | null;
   deletingId?: string | null;
   onEdit: (simulation: SimulationDto) => void;
   onDelete: (simulationId: string) => void;
@@ -65,6 +66,7 @@ export default function AdminSimulationsPanel({
   initialDifficulty,
   initialStatus,
   selectedSimulationId,
+  editingId,
   deletingId,
   onEdit,
   onDelete,
@@ -260,10 +262,11 @@ export default function AdminSimulationsPanel({
               <div className="mt-5 flex gap-2">
                 <button
                   type="button"
+                  disabled={editingId === simulation._id}
                   onClick={() => onEdit(simulation)}
-                  className="flex-1 px-3 py-2 text-xs uppercase tracking-wide rounded border border-cyan-700 text-cyan-300 hover:bg-cyan-900/30"
+                  className="flex-1 px-3 py-2 text-xs uppercase tracking-wide rounded border border-cyan-700 text-cyan-300 hover:bg-cyan-900/30 disabled:opacity-60"
                 >
-                  Edit
+                  {editingId === simulation._id ? 'Loading...' : 'Edit'}
                 </button>
                 <button
                   type="button"

@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AttemptsService } from './attempts.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { UserService } from '../users/users.service';
 import { Types } from 'mongoose';
 
@@ -128,7 +132,10 @@ describe('AttemptsService (Unit Tests)', () => {
       jest.spyOn(service, 'sanitizeAttempt').mockReturnValue(mockAttempt);
 
       // Mock the constructor behavior
-      const result = await service.createAttempt('507f1f77bcf86cd799439012', dto);
+      const result = await service.createAttempt(
+        '507f1f77bcf86cd799439012',
+        dto,
+      );
 
       expect(mockAttemptModel.findOne).toHaveBeenCalled();
       expect(mockAttemptModel).toHaveBeenCalledWith(
@@ -209,7 +216,9 @@ describe('AttemptsService (Unit Tests)', () => {
 
       const result = await service.getAttemptById('507f1f77bcf86cd799439013');
 
-      expect(mockAttemptModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
+      expect(mockAttemptModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
       expect(result).toEqual(mockAttempt);
     });
 
@@ -230,7 +239,9 @@ describe('AttemptsService (Unit Tests)', () => {
       mockAttemptModel.find.mockReturnValue({ exec: mockExec });
       jest.spyOn(service, 'sanitizeAttempts').mockReturnValue([mockAttempt]);
 
-      const result = await service.getAttemptsByUser('507f1f77bcf86cd799439012');
+      const result = await service.getAttemptsByUser(
+        '507f1f77bcf86cd799439012',
+      );
 
       expect(mockAttemptModel.find).toHaveBeenCalledWith({
         user_id: expect.any(Types.ObjectId),
@@ -265,7 +276,9 @@ describe('AttemptsService (Unit Tests)', () => {
 
       const result = await service.addEntry('507f1f77bcf86cd799439013', dto);
 
-      expect(mockAttemptModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
+      expect(mockAttemptModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
       expect(mockAttempt.save).toHaveBeenCalled();
     });
 
@@ -275,9 +288,9 @@ describe('AttemptsService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.addEntry('invalid-id', dto),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.addEntry('invalid-id', dto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -289,9 +302,14 @@ describe('AttemptsService (Unit Tests)', () => {
       });
       jest.spyOn(service, 'sanitizeAttempt').mockReturnValue(mockAttempt);
 
-      const result = await service.completeAttempt('507f1f77bcf86cd799439013', dto);
+      const result = await service.completeAttempt(
+        '507f1f77bcf86cd799439013',
+        dto,
+      );
 
-      expect(mockAttemptModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
+      expect(mockAttemptModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
       expect(mockAttempt.save).toHaveBeenCalled();
     });
 
@@ -316,7 +334,9 @@ describe('AttemptsService (Unit Tests)', () => {
 
       const result = await service.deleteAttempt('507f1f77bcf86cd799439013');
 
-      expect(mockAttemptModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439013');
+      expect(mockAttemptModel.findByIdAndDelete).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439013',
+      );
       expect(result).toEqual({ deleted: true });
     });
 
@@ -340,29 +360,39 @@ describe('AttemptsService (Unit Tests)', () => {
       mockSimulationModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockSimulation),
       });
-            mockSimulationModel.findById.mockReturnValue({
-              exec: jest.fn().mockResolvedValue(null),
-            });
-            mockSimulationModel.findById.mockReturnValue({
-              exec: jest.fn().mockResolvedValue(null),
-            });
+      mockSimulationModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      });
+      mockSimulationModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      });
       mockUserService.updateUserProgress.mockResolvedValue({});
       jest.spyOn(service, 'sanitizeAttempt').mockReturnValue(attemptWithToken);
 
-      const result = await service.submitToken('507f1f77bcf86cd799439013', 'CORRECT_TOKEN');
+      const result = await service.submitToken(
+        '507f1f77bcf86cd799439013',
+        'CORRECT_TOKEN',
+      );
 
       expect(result.success).toBe(true);
       expect(attemptWithToken.save).toHaveBeenCalled();
     });
 
     it('should increment attempts count on wrong token', async () => {
-      const attemptWithToken = { ...mockAttempt, token: 'CORRECT_TOKEN', attempts: [] };
+      const attemptWithToken = {
+        ...mockAttempt,
+        token: 'CORRECT_TOKEN',
+        attempts: [],
+      };
       mockAttemptModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(attemptWithToken),
       });
       jest.spyOn(service, 'sanitizeAttempt').mockReturnValue(attemptWithToken);
 
-      const result = await service.submitToken('507f1f77bcf86cd799439013', 'WRONG_TOKEN');
+      const result = await service.submitToken(
+        '507f1f77bcf86cd799439013',
+        'WRONG_TOKEN',
+      );
 
       expect(result.success).toBe(false);
       expect(attemptWithToken.save).toHaveBeenCalled();
@@ -377,7 +407,9 @@ describe('AttemptsService (Unit Tests)', () => {
       mockAttemptModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(attemptWith2Failed),
       });
-      jest.spyOn(service, 'sanitizeAttempt').mockReturnValue(attemptWith2Failed);
+      jest
+        .spyOn(service, 'sanitizeAttempt')
+        .mockReturnValue(attemptWith2Failed);
 
       const result = await service.submitToken(
         '507f1f77bcf86cd799439013',
@@ -393,9 +425,9 @@ describe('AttemptsService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.submitToken('invalid-id', 'TOKEN'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.submitToken('invalid-id', 'TOKEN')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -431,9 +463,9 @@ describe('AttemptsService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.verifyToken('invalid-id', 'TOKEN'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.verifyToken('invalid-id', 'TOKEN')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -505,7 +537,9 @@ describe('AttemptsService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(mockSimulation),
       });
 
-      const result = await service.getHintForAttempt('507f1f77bcf86cd799439013');
+      const result = await service.getHintForAttempt(
+        '507f1f77bcf86cd799439013',
+      );
 
       expect(result.hint).toBe('Hint 2');
       expect(result.remaining).toBe(1);
@@ -516,9 +550,9 @@ describe('AttemptsService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.getHintForAttempt('invalid-id'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getHintForAttempt('invalid-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -543,9 +577,9 @@ describe('AttemptsService (Unit Tests)', () => {
         exec: jest.fn().mockResolvedValue(completedAttempt),
       });
 
-      await expect(
-        service.giveUp('507f1f77bcf86cd799439013'),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.giveUp('507f1f77bcf86cd799439013')).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should throw NotFoundException if attempt not found', async () => {
