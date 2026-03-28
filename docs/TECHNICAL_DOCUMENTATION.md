@@ -1,7 +1,7 @@
 # BreakPoint Technical Documentation
 
 ## Stack
-- Frontend: Next.js (App Router), TypeScript, Tailwind CSS
+- Frontend: Next.js, TypeScript, Tailwind CSS
 - Backend: NestJS, TypeScript, Mongoose
 - Database: MongoDB
 - Containers: Docker Compose

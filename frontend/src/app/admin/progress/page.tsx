@@ -12,6 +12,7 @@ const PAGE_SIZE = 20;
 export default function AdminProgressPage() {
   const router = useRouter();
   const { logout, user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [users, setUsers] = useState<User[]>([]);
@@ -21,9 +22,11 @@ export default function AdminProgressPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'exp' | 'score' | 'labs'>('exp');
 
-  if (user?.role !== 'ADMIN') return null;
-
   useEffect(() => {
+    if (!isAdmin) {
+      return;
+    }
+
     let isMounted = true;
 
     async function loadUsers() {
@@ -52,7 +55,7 @@ export default function AdminProgressPage() {
     return () => {
       isMounted = false;
     };
-  }, [page]);
+  }, [page, isAdmin]);
 
   const filteredAndSorted = useMemo(() => {
     let filtered = users.filter((u) =>
@@ -98,6 +101,8 @@ export default function AdminProgressPage() {
       topPlayer,
     };
   }, [users]);
+
+  if (!isAdmin) return null;
 
   return (
     <div className="bg-slate-950 text-slate-300 min-h-screen flex">

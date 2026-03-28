@@ -12,6 +12,7 @@ const PAGE_SIZE = 20;
 export default function AdminUsersPage() {
   const router = useRouter();
   const { logout, user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -23,9 +24,11 @@ export default function AdminUsersPage() {
   const [suspendingId, setSuspendingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  if (user?.role !== 'ADMIN') return null;
-
   useEffect(() => {
+    if (!isAdmin) {
+      return;
+    }
+
     let isMounted = true;
 
     async function loadUsers() {
@@ -54,7 +57,7 @@ export default function AdminUsersPage() {
     return () => {
       isMounted = false;
     };
-  }, [page]);
+  }, [page, isAdmin]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) =>
@@ -100,6 +103,8 @@ export default function AdminUsersPage() {
       setDeletingId(null);
     }
   }
+
+  if (!isAdmin) return null;
 
   return (
     <div className="bg-slate-950 text-slate-300 min-h-screen flex">

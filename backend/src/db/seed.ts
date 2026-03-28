@@ -86,7 +86,7 @@ async function seed() {
     const admin = await userModel.findOneAndUpdate(
       { email: adminEmail },
       {
-        name: 'Platform Admin',
+        name: 'Admin',
         email: adminEmail,
         password: adminPasswordHash,
         role: 'ADMIN',
@@ -97,7 +97,7 @@ async function seed() {
     await userModel.findOneAndUpdate(
       { email: participantEmail },
       {
-        name: 'Default Participant',
+        name: 'Participant',
         email: participantEmail,
         password: participantPasswordHash,
         role: 'PARTICIPANT',
@@ -107,8 +107,7 @@ async function seed() {
 
     const localstorageSlug = 'localstorage';
     const xssSlug = 'xss';
-    const csrfSlug = 'csrf-bank-transfer';
-    const idorSlug = 'idor-profile-leak';
+    const hiddenTokensSlug = 'hidden-tokens';
 
     const simulations: SeedSimulation[] = [
       {
@@ -140,122 +139,67 @@ async function seed() {
 <html>
   <head>
     <title>Neon Desert Fest</title>
-    <style>
-      :root {
-        --sand: #f5e7c1;
-        --sun: #ff8a3d;
-        --cactus: #1f6b53;
-        --night: #0f172a;
-        --mint: #2dd4bf;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-        color: var(--night);
-        min-height: 100vh;
-        background:
-          radial-gradient(circle at 80% 15%, rgba(255, 138, 61, 0.55), transparent 34%),
-          linear-gradient(140deg, #ffe8b3 0%, #ffd0a1 45%, #ffaf87 100%);
-      }
-      .wrap {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 24px;
-      }
-      .hero {
-        margin-top: 18px;
-        border: 2px solid rgba(15, 23, 42, 0.2);
-        background: rgba(255, 255, 255, 0.72);
-        backdrop-filter: blur(3px);
-        border-radius: 18px;
-        padding: 24px;
-        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
-      }
-      h1 {
-        margin: 0;
-        letter-spacing: 1px;
-        font-size: 40px;
-        text-transform: uppercase;
-      }
-      .sub {
-        margin-top: 8px;
-        color: #334155;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 14px;
-        margin-top: 22px;
-      }
-      .card {
-        border-radius: 14px;
-        background: #fffef8;
-        border: 1px solid rgba(15, 23, 42, 0.15);
-        padding: 14px;
-      }
-      .tag {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 999px;
-        background: var(--night);
-        color: #e2e8f0;
-        font-size: 12px;
-      }
-      .cta {
-        margin-top: 20px;
-        background: var(--night);
-        color: #e2e8f0;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 16px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .cta:hover { background: #1e293b; }
-      #status {
-        margin-top: 16px;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px dashed rgba(15, 23, 42, 0.4);
-        background: rgba(45, 212, 191, 0.12);
-      }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <div class="wrap">
-      <section class="hero">
-        <span class="tag">Neon Desert Fest 2026</span>
-        <h1>Landing In The Dunes</h1>
-        <p class="sub">Three days of synth, skate ramps, and midnight coding under solar towers.</p>
 
-        <div class="grid">
-          <article class="card">
-            <h3>Sunset Stage</h3>
-            <p>Retro-wave bands from 18:00 to 23:00 with projection mapping on sandstone walls.</p>
-          </article>
-          <article class="card">
-            <h3>Salt Flats Race</h3>
-            <p>Custom bike sprint track with a fuel-cell challenge and prize for best design.</p>
-          </article>
-          <article class="card">
-            <h3>Cactus Arcade</h3>
-            <p>Pixel cabinets and lo-fi booths. Winner takes the chrome joystick trophy.</p>
-          </article>
+  <body class="min-h-screen bg-gradient-to-br from-orange-200 via-orange-300 to-pink-300 text-slate-900">
+
+    <div class="max-w-6xl mx-auto px-6 py-10">
+
+      <section class="backdrop-blur-md bg-white/70 border border-slate-300 rounded-3xl shadow-2xl p-8 md:p-12">
+
+        <span class="inline-block px-4 py-1 text-xs font-semibold rounded-full bg-slate-900 text-slate-200 tracking-wide">
+          Neon Desert Fest 2026
+        </span>
+
+        <h1 class="mt-4 text-4xl md:text-6xl font-extrabold uppercase tracking-wide">
+          Landing In The Dunes
+        </h1>
+
+        <p class="mt-4 text-slate-600 text-lg max-w-2xl">
+          Three days of synth, skate ramps, and midnight coding under solar towers.
+        </p>
+
+        <div class="grid gap-6 mt-10 sm:grid-cols-2 lg:grid-cols-3">
+
+          <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200 hover:shadow-xl transition">
+            <h3 class="text-xl font-bold mb-2">Sunset Stage</h3>
+            <p class="text-slate-600">
+              Retro-wave bands from 18:00 to 23:00 with projection mapping on sandstone walls.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200 hover:shadow-xl transition">
+            <h3 class="text-xl font-bold mb-2">Salt Flats Race</h3>
+            <p class="text-slate-600">
+              Custom bike sprint track with a fuel-cell challenge and prize for best design.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200 hover:shadow-xl transition">
+            <h3 class="text-xl font-bold mb-2">Cactus Arcade</h3>
+            <p class="text-slate-600">
+              Pixel cabinets and lo-fi booths. Winner takes the chrome joystick trophy.
+            </p>
+          </div>
+
         </div>
 
-        <button class="cta" type="button">Reserve Festival Pass</button>
-        <p id="status">Initializing storage...</p>
+        <button
+          class="mt-10 px-6 py-3 rounded-xl font-bold text-lg bg-slate-900 text-white hover:bg-slate-800 transition transform hover:scale-105 active:scale-95"
+          type="button"
+        >
+          Reserve Festival Pass
+        </button>
+
       </section>
+
     </div>
+
     <script>
-      try {
         localStorage.setItem('BP-token', 'ATTEMPT_TOKEN');
-        document.getElementById('status').textContent = 'Pass metadata saved. (BP-token key updated in localStorage)';
-      } catch (error) {
-        document.getElementById('status').textContent = 'Storage error: ' + (error && error.message ? error.message : 'unknown');
-      }
     </script>
+
   </body>
 </html>`,
         ),
@@ -272,6 +216,7 @@ async function seed() {
         hint: [
           'The input is rendered using innerHTML.',
           'Try script injection with console output.',
+          'Try to ingext an image with an unknown source and onerror do an alert',
         ],
         score: 200,
         metadata: {
@@ -286,13 +231,99 @@ async function seed() {
           xssSlug,
           `<!doctype html>
 <html>
-  <head><title>XSS Lab</title></head>
-  <body>
-    <h1>Comment Wall</h1>
-    <input id="comment" placeholder="Write comment" />
-    <button onclick="publish()">Publish</button>
-    <div id="output"></div>
+  <head>
+    <title>Urban Threads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
 
+  <body class="min-h-screen bg-gray-100 text-gray-900">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+      <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Urban Threads</h1>
+        <div class="space-x-6 text-sm text-gray-600">
+          <a href="#">Shop</a>
+          <a href="#">Collections</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h2 class="text-4xl font-bold leading-tight">
+          Minimal Style, Maximum Impact
+        </h2>
+        <p class="mt-4 text-gray-600">
+          Discover our latest streetwear collection designed for comfort and everyday expression.
+        </p>
+        <button class="mt-6 px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition">
+          Explore Collection
+        </button>
+      </div>
+
+      <div class="bg-gray-300 rounded-2xl h-72 flex items-center justify-center text-gray-500">
+        Image Preview
+      </div>
+    </section>
+
+    <!-- Product Section -->
+    <section class="max-w-6xl mx-auto px-6 pb-12">
+      <h3 class="text-2xl font-semibold mb-6">Featured Items</h3>
+
+      <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div class="bg-white p-4 rounded-xl shadow">
+          <div class="h-40 bg-gray-200 rounded-lg mb-3"></div>
+          <h4 class="font-semibold">Oversized Hoodie</h4>
+          <p class="text-sm text-gray-500">$59</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow">
+          <div class="h-40 bg-gray-200 rounded-lg mb-3"></div>
+          <h4 class="font-semibold">Classic Tee</h4>
+          <p class="text-sm text-gray-500">$29</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow">
+          <div class="h-40 bg-gray-200 rounded-lg mb-3"></div>
+          <h4 class="font-semibold">Cargo Pants</h4>
+          <p class="text-sm text-gray-500">$79</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comments (looks innocent) -->
+    <section class="max-w-3xl mx-auto px-6 pb-16">
+      <h3 class="text-xl font-semibold mb-4">Customer Feedback</h3>
+
+      <div class="flex gap-3">
+        <input
+          id="comment"
+          placeholder="Share your thoughts..."
+          class="flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+        />
+        <button
+          onclick="publish()"
+          class="px-5 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+        >
+          Post
+        </button>
+      </div>
+
+      <div
+        id="output"
+        class="mt-6 space-y-3 text-sm text-gray-700"
+      ></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t py-6 text-center text-sm text-gray-500">
+      © 2026 Urban Threads. All rights reserved.
+    </footer>
+
+    <!-- KEEP SCRIPT EXACTLY -->
     <script>
       const token = 'BP{xss_console_disclosure}';
       function publish() {
@@ -300,81 +331,78 @@ async function seed() {
         document.getElementById('output').innerHTML = value;
       }
     </script>
+
   </body>
 </html>`,
         ),
       },
       {
-        name: 'CSRF Bank Transfer',
-        description:
-          'Craft a forged transfer request and capture the resulting hidden token from success response.',
-        token: 'BP{csrf_transfer_complete}',
-        difficulty: 'Hard',
+        name: 'Hidden Tokens',
+        description: 'find the token stored in the code',
+        token: 'BP{token}',
+        difficulty: 'Easy',
         token_count: 1,
-        minimum_exp: 150,
+        minimum_exp: 100,
         status: 'Active',
         hint: [
-          'Look for endpoints accepting transfer actions without CSRF token validation.',
-          'Use an auto-submitting HTML form.',
+          'look for any hidden elements',
+          'look at the form for any hidden inputs',
+          'find the token hard coded in the html of the hidden input',
         ],
-        score: 350,
+        score: 200,
         metadata: {
-          category: 'CSRF',
-          objective: 'Perform unauthorized transfer and recover proof token.',
-          vulnerableEndpoint: '/transfer',
-          estimatedMinutes: 15,
+          category: 'Hidden Input',
+          objective: 'Inspect HTML and identify token in hidden form input.',
+          estimatedMinutes: 6,
         },
         components: simulationComponents(
-          csrfSlug,
+          hiddenTokensSlug,
           `<!doctype html>
 <html>
-  <head><title>CSRF Transfer Lab</title></head>
-  <body>
-    <h1>Transfer Funds</h1>
-    <form action="/transfer" method="POST">
-      <input name="to" value="attacker" />
-      <input name="amount" value="1000" />
-      <button>Transfer</button>
-    </form>
-    <p>Server returns token: BP{csrf_transfer_complete} on successful exploit.</p>
-  </body>
-</html>`,
-        ),
-      },
-      {
-        name: 'IDOR Profile Leak',
-        description:
-          'Enumerate insecure direct object references to retrieve another user profile token.',
-        token: 'BP{idor_profile_dump}',
-        difficulty: 'Normal',
-        token_count: 1,
-        minimum_exp: 80,
-        status: 'Active',
-        hint: [
-          'Try changing numeric user identifiers in profile routes.',
-          'Sensitive data should not be exposed cross-user.',
-        ],
-        score: 250,
-        metadata: {
-          category: 'Access Control',
-          objective: 'Access another user record and extract token field.',
-          vulnerablePattern: '/api/profile/:id',
-          estimatedMinutes: 12,
-        },
-        components: simulationComponents(
-          idorSlug,
-          `<!doctype html>
-<html>
-  <head><title>IDOR Lab</title></head>
-  <body>
-    <h1>Profile Viewer</h1>
-    <p>Endpoint pattern: /api/profile/{id}</p>
-    <p>Exposed token in victim profile: BP{idor_profile_dump}</p>
+  <head>
+    <title>Create Post</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="min-h-screen bg-gray-100 flex items-center justify-center">
+
+    <div class="w-full max-w-md bg-white p-6 rounded-2xl shadow-lg">
+      <h1 class="text-2xl font-bold mb-4">Create Post</h1>
+
+      <form class="space-y-4">
+        <input
+          type="text"
+          placeholder="Post title"
+          class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+        />
+
+        <textarea
+          placeholder="Write something..."
+          class="w-full px-4 py-2 border rounded-xl h-32 resize-none focus:outline-none focus:ring-2 focus:ring-black"
+        ></textarea>
+
+        <input type="hidden" name="token" value="BP{token}" />
+
+        <button
+          type="submit"
+          class="w-full py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+        >
+          Publish
+        </button>
+      </form>
+    </div>
+
   </body>
 </html>`,
         ),
       },
     ];
+
+    await simulationModel
+      .deleteMany({
+        name: { $in: ['CSRF Bank Transfer', 'IDOR Profile Leak'] },
+      })
+      .exec();
 
     for (const simulation of simulations) {
       const existing = await simulationModel
@@ -403,8 +431,7 @@ async function seed() {
       );
     }
 
-    // Keep output concise for CLI usage.
-    console.log('Seed completed: users(2), simulations(4)');
+    console.log('Seed completed: users(2), simulations(3)');
   } finally {
     await app.close();
   }

@@ -53,15 +53,18 @@ async function getAllAttempts(simulationId: string): Promise<ActivityAttempt[]> 
 export default function AdminActivityPage() {
   const router = useRouter();
   const { logout, user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [simulations, setSimulations] = useState<SimulationDto[]>([]);
   const [recentAttempts, setRecentAttempts] = useState<ActivityAttempt[]>([]);
 
-  if (user?.role !== 'ADMIN') return null;
-
   useEffect(() => {
+    if (!isAdmin) {
+      return;
+    }
+
     let isMounted = true;
 
     async function loadActivityData() {
@@ -110,7 +113,7 @@ export default function AdminActivityPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isAdmin]);
 
   const stats = useMemo(() => {
     const participants = users.filter((u) => u.role === 'PARTICIPANT');
@@ -158,6 +161,8 @@ export default function AdminActivityPage() {
       Insane: simulations.filter((s) => s.difficulty === 'Insane').length,
     };
   }, [simulations]);
+
+  if (!isAdmin) return null;
 
   return (
     <div className="bg-slate-950 text-slate-300 min-h-screen flex">

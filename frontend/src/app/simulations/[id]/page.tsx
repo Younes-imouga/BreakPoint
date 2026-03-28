@@ -165,6 +165,11 @@ export default function SimulationDetailPage() {
       return;
     }
 
+    if (activeAttempt.success === true) {
+      setErrorMessage('Simulation already completed. Hints are disabled.');
+      return;
+    }
+
     setStatusMessage('');
     setErrorMessage('');
 
@@ -186,16 +191,18 @@ export default function SimulationDetailPage() {
       return;
     }
 
+    if (activeAttempt.success === true) {
+      setErrorMessage('Simulation already completed. Give up is disabled.');
+      return;
+    }
+
     setIsGivingUp(true);
     setStatusMessage('');
     setErrorMessage('');
 
     try {
       await attemptsApi.giveUp(activeAttempt._id);
-      setActiveAttempt(null);
-      setCurrentHint(null);
-      setHintsRemaining(0);
-      setStatusMessage('Attempt marked as failed. You can start again.');
+      router.push('/simulations');
     } catch (error) {
       const nextMessage = error instanceof Error ? error.message : 'Unable to give up.';
       setErrorMessage(nextMessage);
@@ -357,12 +364,13 @@ export default function SimulationDetailPage() {
               hintsRemaining={hintsRemaining}
               currentHint={currentHint}
               onRequestHint={handleRequestHint}
+              disabled={activeAttempt?.success === true}
             />
 
             <div className="bg-red-900/20 border border-red-900 rounded-lg p-5">
               <button
                 onClick={handleGiveUp}
-                disabled={!activeAttempt || isGivingUp}
+                disabled={!activeAttempt || isGivingUp || activeAttempt.success === true}
                 className="w-full bg-red-900/30 hover:bg-red-900/50 border border-red-900 text-red-400 font-bold py-2 rounded uppercase text-xs transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isGivingUp ? 'Processing...' : 'Give_Up'}

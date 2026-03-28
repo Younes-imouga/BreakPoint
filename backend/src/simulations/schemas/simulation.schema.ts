@@ -39,7 +39,7 @@ export class Simulation extends Document {
   @Prop({ type: Object, default: {} })
   metadata: Record<string, unknown>;
 
-  @Prop({
+  @Prop({ 
     type: [
       {
         fileName: { type: String, required: true },

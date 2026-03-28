@@ -4,12 +4,14 @@ interface HintDisplayProps {
   hintsRemaining?: number;
   currentHint?: string | null;
   onRequestHint?: () => void;
+  disabled?: boolean;
 }
 
 export default function HintDisplay({
   hintsRemaining = 2,
   currentHint = null,
   onRequestHint,
+  disabled = false,
 }: HintDisplayProps) {
   return (
     <div className="bg-slate-900 border border-slate-700 rounded-lg p-5">
@@ -28,7 +30,7 @@ export default function HintDisplay({
 
       <button
         onClick={onRequestHint}
-        disabled={hintsRemaining === 0}
+        disabled={disabled || hintsRemaining === 0}
         className="w-full bg-slate-950 hover:bg-slate-800 border border-slate-700 hover:border-amber-500 text-slate-300 font-bold py-2 rounded uppercase text-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Request_Hint ({hintsRemaining} left)
@@ -39,3 +41,4 @@ export default function HintDisplay({
     </div>
   );
 }
+  

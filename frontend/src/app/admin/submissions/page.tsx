@@ -38,15 +38,18 @@ async function getAllSimulations(): Promise<SimulationDto[]> {
 export default function AdminSubmissionsPage() {
   const router = useRouter();
   const { logout, user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [simulations, setSimulations] = useState<SimulationWithAttempts[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterByStatus, setFilterByStatus] = useState<'all' | 'successful' | 'failed'>('all');
 
-  if (user?.role !== 'ADMIN') return null;
-
   useEffect(() => {
+    if (!isAdmin) {
+      return;
+    }
+
     let isMounted = true;
 
     async function loadData() {
@@ -83,7 +86,7 @@ export default function AdminSubmissionsPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isAdmin]);
 
   const filteredSimulations = useMemo(() => {
     return simulations
@@ -111,6 +114,8 @@ export default function AdminSubmissionsPage() {
       0
     );
   }, [filteredSimulations]);
+
+  if (!isAdmin) return null;
 
   return (
     <div className="bg-slate-950 text-slate-300 min-h-screen flex">
